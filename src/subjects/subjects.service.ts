@@ -54,13 +54,13 @@ export class SubjectsService {
       throw new Error("Only one subject can be created at a time");
     }
 
-    if (CreateSubjectsSchedulesProfessorsDto.schedules.length === 0) {
-      throw new Error("At least one schedule must be provided");
-    }
+    // if (CreateSubjectsSchedulesProfessorsDto.schedules.length === 0) {
+    //   throw new Error("At least one schedule must be provided");
+    // }
 
-    if (CreateSubjectsSchedulesProfessorsDto.professors.length === 0) {
-      throw new Error("At least one professor must be provided");
-    }
+    // if (CreateSubjectsSchedulesProfessorsDto.professors.length === 0) {
+    //   throw new Error("At least one professor must be provided");
+    // }
 
     const schedules = CreateSubjectsSchedulesProfessorsDto.schedules;
 

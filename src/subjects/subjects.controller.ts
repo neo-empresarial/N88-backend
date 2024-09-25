@@ -26,7 +26,7 @@ export class SubjectsController {
     return this.subjectsService.create(createSubjectDto);
   }
 
-  @Post('all')
+  @Post('/all')
   async createAll(@Body(ValidationPipe) CreateSubjectsSchedulesProfessorsDto: CreateSubjectsSchedulesProfessorsDto){
     return this.subjectsService.createAll(CreateSubjectsSchedulesProfessorsDto);
   }
