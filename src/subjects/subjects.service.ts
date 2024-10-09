@@ -42,7 +42,6 @@ export class SubjectsService {
   async create(createSubjectDto: CreateSubjectsDto) {
     const newSubject = new Subjects();
     newSubject.code = createSubjectDto.code;
-    newSubject.classcode = createSubjectDto.classcode;
     newSubject.name = createSubjectDto.name;
     newSubject.totalvacancies = createSubjectDto.totalvacancies;
     newSubject.freevacancies = createSubjectDto.freevacancies;
@@ -54,34 +53,28 @@ export class SubjectsService {
       throw new Error("Only one subject can be created at a time");
     }
 
-    // if (CreateSubjectsSchedulesProfessorsDto.schedules.length === 0) {
-    //   throw new Error("At least one schedule must be provided");
-    // }
-
-    // if (CreateSubjectsSchedulesProfessorsDto.professors.length === 0) {
-    //   throw new Error("At least one professor must be provided");
-    // }
-
     const schedules = CreateSubjectsSchedulesProfessorsDto.schedules;
 
     const schedules_objects = await Promise.all(schedules.map(async (schedule) => {
       // check if schedule already exists
-      const schedule_exists = await this.schedulesRepository.findOne({
-        where: {
-          weekday: schedule.weekday,
-          starttime: schedule.starttime,
-          classesnumber: schedule.classesnumber,
-          building: schedule.building,
-          room: schedule.room
-        }
-      });
+      // const schedule_exists = await this.schedulesRepository.findOne({
+      //   where: {
+      //     classcode: schedule.classcode,
+      //     weekday: schedule.weekday,
+      //     starttime: schedule.starttime,
+      //     classesnumber: schedule.classesnumber,
+      //     building: schedule.building,
+      //     room: schedule.room
+      //   }
+      // });
 
-      if (schedule_exists) {
-        // Return the existing schedule object
-        return schedule_exists;
-      }
+      // if (schedule_exists) {
+      //   // Return the existing schedule object
+      //   return schedule_exists;
+      // }
 
       const newSchedule = new Schedules();
+      newSchedule.classcode = schedule.classcode;
       newSchedule.weekday = schedule.weekday;
       newSchedule.starttime = schedule.starttime;
       newSchedule.classesnumber = schedule.classesnumber;
@@ -111,7 +104,6 @@ export class SubjectsService {
     const subjects = CreateSubjectsSchedulesProfessorsDto.subjects;
     const newSubject = new Subjects();
     newSubject.code = subjects[0].code;
-    newSubject.classcode = subjects[0].classcode;
     newSubject.name = subjects[0].name;
     newSubject.totalvacancies = subjects[0].totalvacancies;
     newSubject.freevacancies = subjects[0].freevacancies;
@@ -120,5 +112,10 @@ export class SubjectsService {
 
     return this.subjectsRepository.save(newSubject);
 
+  }
+
+  // Delete all subjects
+  async deleteAll() {
+    return this.subjectsRepository.delete({});
   }
 }
