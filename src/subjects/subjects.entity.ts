@@ -1,6 +1,5 @@
 ﻿import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Schedules } from "./schedules.entity";
-import { Professors } from "./professors.entity";
+import { Classes } from "./classes/classes.entity";
 import { Users } from "../users/user.entity";
 
 @Entity()
@@ -8,32 +7,17 @@ export class Subjects {
   @PrimaryGeneratedColumn({})
   idsubject: number;
 
-  @Column("varchar", { length: 45 })
+  @Column("varchar", { length: 45, unique: true })
   code: string;
-
-  @Column("varchar", { length: 45 })
-  classcode: string;
 
   @Column("varchar", { length: 200 })
   name: string;
 
-  @Column("int")
-  totalvacancies: number;
-
-  @Column("int")
-  freevacancies: number;
-
-  @OneToMany(type => Schedules, schedules => schedules.subject, {
+  @OneToMany(type => Classes, classes => classes.subject, {
     cascade: true,
     onDelete: "CASCADE"
   })
-  schedules: Schedules[];
-
-  @ManyToMany(() => Professors, {
-    cascade: true,
-  })
-  @JoinTable()
-  professors: Professors[];
+  classes: Classes[];
 
   @ManyToMany(() => Users, {
     onDelete: "CASCADE"

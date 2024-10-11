@@ -1,5 +1,5 @@
 ﻿import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Subjects } from "./subjects.entity";
+import { Classes } from "../classes/classes.entity";
 
 @Entity()
 export class Schedules {
@@ -21,6 +21,6 @@ export class Schedules {
   @Column("varchar", { length: 45 })
   room: string;
 
-  @ManyToOne(type => Subjects, subject => subject.schedules)
-  subject: Subjects;
+  @ManyToOne(type => Classes, classes => classes.schedules)
+  classes: Classes;
 }

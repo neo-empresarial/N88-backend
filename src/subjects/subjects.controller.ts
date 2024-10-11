@@ -2,9 +2,9 @@ import { Body, Controller, Get, Param, ParseIntPipe, Post, ValidationPipe } from
 import { SubjectsService } from './subjects.service';
 import { Subjects } from './subjects.entity';
 import { CreateSubjectsDto } from './dto/create-subjects.dto';
-import { SchedulesService } from './schedules.service';
-import { CreateSchedulesDto } from './dto/create-schedules.dto';
-import { Schedules } from './schedules.entity';
+import { SchedulesService } from './schedules/schedules.service';
+import { CreateSchedulesDto } from './schedules/dto/create-schedules.dto';
+import { Schedules } from './schedules/schedules.entity';
 import { CreateSubjectsSchedulesProfessorsDto } from './dto/create-subjects-schedules-professors.dto';
 
 @Controller('subjects')
@@ -26,10 +26,10 @@ export class SubjectsController {
     return this.subjectsService.create(createSubjectDto);
   }
 
-  @Post('/all')
-  async createAll(@Body(ValidationPipe) CreateSubjectsSchedulesProfessorsDto: CreateSubjectsSchedulesProfessorsDto){
-    return this.subjectsService.createAll(CreateSubjectsSchedulesProfessorsDto);
-  }
+  // @Post('/all')
+  // async createAll(@Body(ValidationPipe) CreateSubjectsSchedulesProfessorsDto: CreateSubjectsSchedulesProfessorsDto){
+  //   return this.subjectsService.createAll(CreateSubjectsSchedulesProfessorsDto);
+  // }
 }
 
 @Controller('schedules')

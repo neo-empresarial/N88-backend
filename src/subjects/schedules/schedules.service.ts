@@ -28,7 +28,7 @@ export class SchedulesService {
 
   async findWithSubject(id: number): Promise<Schedules[]> {
     const result = this.schedulesRepository.find({
-      where: { subject: { idsubject: id } },
+      where: { classes: { subject: { idsubject: id} } },
       relations: ["subject"]
     });
 

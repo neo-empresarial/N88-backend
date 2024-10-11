@@ -1,19 +1,14 @@
 ﻿import { ValidateNested } from "class-validator";
 import { CreateSubjectsDto } from "./create-subjects.dto";
-import { CreateSchedulesDto } from "./create-schedules.dto";
-import { CreateProfessorsDto } from "./create-professors.dto";
 import { Type } from "class-transformer";
+import { CreateClassesDto } from "../classes/dto/create-classes.dto";
 
 export class CreateSubjectsSchedulesProfessorsDto {
   @Type(() => CreateSubjectsDto)
   @ValidateNested()
-  subjects: CreateSubjectsDto[];
+  subject: CreateSubjectsDto;
 
-  @Type(() => CreateSchedulesDto)
+  @Type(() => CreateClassesDto)
   @ValidateNested()
-  schedules: CreateSchedulesDto[];
-
-  @Type(() => CreateProfessorsDto)
-  @ValidateNested()
-  professors: CreateProfessorsDto[];
+  classes: CreateClassesDto[];
 }

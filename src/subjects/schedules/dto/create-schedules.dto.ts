@@ -1,5 +1,4 @@
 ﻿import { IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { Subjects } from "../subjects.entity";
 
 export class CreateSchedulesDto {
   @IsNotEmpty()

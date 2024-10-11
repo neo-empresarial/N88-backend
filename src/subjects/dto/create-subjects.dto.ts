@@ -1,5 +1,6 @@
-﻿import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
-import { Schedules } from "../schedules.entity";
+﻿import { Type } from "class-transformer";
+import { IsNotEmpty, IsString, ValidateNested } from "class-validator";
+import { CreateClassesDto } from "../classes/dto/create-classes.dto";
 
 export class CreateSubjectsDto {
   @IsNotEmpty()
@@ -8,17 +9,10 @@ export class CreateSubjectsDto {
 
   @IsNotEmpty()
   @IsString()
-  classcode: string;
-
-  @IsNotEmpty()
-  @IsString()
   name: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  totalvacancies: number;
-
-  @IsNotEmpty()
-  @IsNumber()
-  freevacancies: number;
+  @Type(() => CreateClassesDto)
+  @ValidateNested()
+  classes: CreateClassesDto[];
 }

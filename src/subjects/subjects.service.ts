@@ -3,9 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Subjects } from './subjects.entity';
 import { CreateSubjectsDto } from './dto/create-subjects.dto';
-import { CreateSubjectsSchedulesProfessorsDto } from './dto/create-subjects-schedules-professors.dto';
-import { Schedules } from './schedules.entity';
-import { Professors } from './professors.entity';
+// import { CreateSubjectsSchedulesProfessorsDto } from './dto/create-subjects-schedules-professors.dto';
+import { Schedules } from './schedules/schedules.entity';
+import { Professors } from './professors/professors.entity';
+import { Classes } from './classes/classes.entity';
 
 @Injectable()
 export class SubjectsService {
@@ -18,18 +19,21 @@ export class SubjectsService {
 
     @InjectRepository(Professors)
     private readonly professorsRepository: Repository<Professors>,
+
+    @InjectRepository(Classes)
+    private readonly classesRepository: Repository<Classes>,
   ) { }
 
   async findAll(): Promise<Subjects[]> {
     return this.subjectsRepository.find({
-      relations: ["schedules", "professors"]
+      relations: ["classes", "classes.schedules", "classes.professors"]
     });
   }
 
   async findOne(id: number): Promise<Subjects> {
     const result = this.subjectsRepository.findOne({
       where: { idsubject: id },
-      relations: ["schedules", "professors"]
+      relations: ["classes", "classes.schedules", "classes.professors"]
     })
 
     if ((await result) === undefined) {
@@ -40,41 +44,10 @@ export class SubjectsService {
   }
 
   async create(createSubjectDto: CreateSubjectsDto) {
-    const newSubject = new Subjects();
-    newSubject.code = createSubjectDto.code;
-    newSubject.name = createSubjectDto.name;
-    newSubject.totalvacancies = createSubjectDto.totalvacancies;
-    newSubject.freevacancies = createSubjectDto.freevacancies;
-    return this.subjectsRepository.save(newSubject);
-  }
-
-  async createAll(CreateSubjectsSchedulesProfessorsDto: CreateSubjectsSchedulesProfessorsDto) {
-    if (CreateSubjectsSchedulesProfessorsDto.subjects.length !== 1) {
-      throw new Error("Only one subject can be created at a time");
-    }
-
-    const schedules = CreateSubjectsSchedulesProfessorsDto.schedules;
+    const schedules = createSubjectDto.classes.map((class_) => class_.schedules).flat();
 
     const schedules_objects = await Promise.all(schedules.map(async (schedule) => {
-      // check if schedule already exists
-      // const schedule_exists = await this.schedulesRepository.findOne({
-      //   where: {
-      //     classcode: schedule.classcode,
-      //     weekday: schedule.weekday,
-      //     starttime: schedule.starttime,
-      //     classesnumber: schedule.classesnumber,
-      //     building: schedule.building,
-      //     room: schedule.room
-      //   }
-      // });
-
-      // if (schedule_exists) {
-      //   // Return the existing schedule object
-      //   return schedule_exists;
-      // }
-
       const newSchedule = new Schedules();
-      newSchedule.classcode = schedule.classcode;
       newSchedule.weekday = schedule.weekday;
       newSchedule.starttime = schedule.starttime;
       newSchedule.classesnumber = schedule.classesnumber;
@@ -83,36 +56,58 @@ export class SubjectsService {
       return newSchedule;
     }));
 
-    const professors = CreateSubjectsSchedulesProfessorsDto.professors;
+    const professors = createSubjectDto.classes.map((class_) => class_.professors).flat();
 
     const professors_objects = await Promise.all(professors.map(async (professor) => {
-      // check if professor already exists
       const professor_exists = await this.professorsRepository.findOne({
         where: { name: professor.name }
       });
 
       if (professor_exists) {
-        // Return the existing professor object
         return professor_exists;
       }
 
       const newProfessor = new Professors();
       newProfessor.name = professor.name;
-      return newProfessor; // Return the new professor object
+      return newProfessor; 
     }));
 
-    const subjects = CreateSubjectsSchedulesProfessorsDto.subjects;
-    const newSubject = new Subjects();
-    newSubject.code = subjects[0].code;
-    newSubject.name = subjects[0].name;
-    newSubject.totalvacancies = subjects[0].totalvacancies;
-    newSubject.freevacancies = subjects[0].freevacancies;
-    newSubject.schedules = schedules_objects;
-    newSubject.professors = professors_objects;
+    const classes = createSubjectDto.classes;
 
-    return this.subjectsRepository.save(newSubject);
+    const classes_objects = await Promise.all(classes.map(async (class_) => {
+      const newClass = new Classes();
+      newClass.classcode = class_.classcode;
+      newClass.totalvacancies = class_.totalvacancies;
+      newClass.freevacancies = class_.freevacancies;
+      newClass.schedules = schedules_objects;
+      newClass.professors = professors_objects;
+      return newClass;
+    }));
 
+    const subject = createSubjectDto;
+
+    const subject_exists = await this.subjectsRepository.findOne({
+      where: { code: subject.code },
+      relations: ["classes", "classes.schedules", "classes.professors"]
+    });
+
+    if (subject_exists) {
+      // Add the new classes to the existing subject
+      subject_exists.classes = subject_exists.classes.concat(classes_objects);
+      return this.subjectsRepository.save(subject_exists);
+    } else {
+      const newSubject = new Subjects();
+      newSubject.code = subject.code;
+      newSubject.name = subject.name;
+      newSubject.classes = classes_objects;
+      return this.subjectsRepository.save(newSubject);
+    }
   }
+
+  // async createAll(CreateSubjectsSchedulesProfessorsDto: CreateSubjectsSchedulesProfessorsDto) {
+    
+
+  // }
 
   // Delete all subjects
   async deleteAll() {
