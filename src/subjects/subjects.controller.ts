@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, ValidationPipe } from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import { Subjects } from './subjects.entity';
 import { CreateSubjectsDto } from './dto/create-subjects.dto';
@@ -9,11 +9,18 @@ import { CreateSubjectsSchedulesProfessorsDto } from './dto/create-subjects-sche
 
 @Controller('subjects')
 export class SubjectsController {
-  constructor(private readonly subjectsService: SubjectsService) {}
+  constructor(private readonly subjectsService: SubjectsService) { }
 
   @Get()
   async findAll(): Promise<Subjects[]> {
     return this.subjectsService.findAll();
+  }
+
+
+  @Get('search')
+  async findByParameter(@Query() query: any): Promise<Subjects[]> {
+    const { name } = query;
+    return this.subjectsService.findByParameter(name);
   }
 
   @Get(':id')
@@ -22,7 +29,7 @@ export class SubjectsController {
   }
 
   @Post()
-  async create(@Body() createSubjectDto: CreateSubjectsDto){
+  async create(@Body() createSubjectDto: CreateSubjectsDto) {
     return this.subjectsService.create(createSubjectDto);
   }
 
@@ -34,7 +41,7 @@ export class SubjectsController {
 
 @Controller('schedules')
 export class SchedulesController {
-  constructor(private readonly schedulesService: SchedulesService) {}
+  constructor(private readonly schedulesService: SchedulesService) { }
 
   @Get()
   async findAll(): Promise<Schedules[]> {
@@ -47,7 +54,7 @@ export class SchedulesController {
   }
 
   @Post()
-  async create(@Body(ValidationPipe) CreateSchedulesDto: CreateSchedulesDto){
+  async create(@Body(ValidationPipe) CreateSchedulesDto: CreateSchedulesDto) {
     return this.schedulesService.create(CreateSchedulesDto);
   }
 }

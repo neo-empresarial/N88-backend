@@ -30,6 +30,13 @@ export class SubjectsService {
     });
   }
 
+  async findByParameter(name: string): Promise<Subjects[]> {
+    // it dosent look to optmized
+    const subjects = this.subjectsRepository.find()
+    const filteredSubjects = (await subjects).filter(subject => subject.name.includes(name))
+    return filteredSubjects
+  }
+
   async findOne(id: number): Promise<Subjects> {
     const result = this.subjectsRepository.findOne({
       where: { idsubject: id },
@@ -69,7 +76,7 @@ export class SubjectsService {
 
       const newProfessor = new Professors();
       newProfessor.name = professor.name;
-      return newProfessor; 
+      return newProfessor;
     }));
 
     const classes = createSubjectDto.classes;
@@ -105,7 +112,7 @@ export class SubjectsService {
   }
 
   // async createAll(CreateSubjectsSchedulesProfessorsDto: CreateSubjectsSchedulesProfessorsDto) {
-    
+
 
   // }
 
