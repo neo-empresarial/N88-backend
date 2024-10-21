@@ -33,7 +33,7 @@ export class SubjectsService {
   async findByParameter(name: string): Promise<Subjects[]> {
     // it dosent look to optmized
     const subjects = this.subjectsRepository.find()
-    const filteredSubjects = (await subjects).filter(subject => subject.name.includes(name))
+    const filteredSubjects = (await subjects).filter(subject => subject.name.toLowerCase().includes(name.toLowerCase()))
     return filteredSubjects
   }
 
