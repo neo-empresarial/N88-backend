@@ -25,9 +25,18 @@ export class SubjectsService {
   ) { }
 
   async findAll(): Promise<Subjects[]> {
-    return this.subjectsRepository.find({
-      relations: ["classes", "classes.schedules", "classes.professors"]
-    });
+    return this.subjectsRepository.find(
+      // {
+      // relations: ["classes", "classes.schedules", "classes.professors"]
+      // }
+    );
+  }
+  async findAllWithRelations(): Promise<Subjects[]> {
+    return this.subjectsRepository.find(
+      {
+        relations: ["classes", "classes.schedules", "classes.professors"]
+      }
+    );
   }
 
   async findByParameter(name: string): Promise<Subjects[]> {
@@ -45,6 +54,20 @@ export class SubjectsService {
 
     if ((await result) === undefined) {
       throw new Error(`Subject with id ${id} not found`);
+    }
+
+    return result;
+  }
+
+  async findOneByName(name: string): Promise<Subjects> {
+    console.log('find one by name:', name)
+    const result = this.subjectsRepository.findOne({
+      where: { name: name },
+      relations: ["classes", "classes.schedules", "classes.professors"]
+    })
+
+    if ((await result) === undefined) {
+      throw new Error(`Subject with name ${name} not found`);
     }
 
     return result;
