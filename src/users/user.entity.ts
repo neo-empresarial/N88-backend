@@ -1,17 +1,34 @@
-﻿import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Subjects } from "../subjects/subjects.entity";
+﻿import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { SavedSchedules } from "./savedschedules/savedschedules.entity";
 
 @Entity()
 export class Users {
   @PrimaryGeneratedColumn()
-  idsavedschedule: number;
+  iduser: number;
 
-  @Column("varchar", { length: 45, unique: true })
-  code: string;
+  @Column("varchar", { length: 100 })
+  name: string;
 
-  @ManyToMany(() => Subjects, {
+  @Column("varchar", { length: 55 })
+  email: string;
+
+  @Column("varchar", { length: 255 })
+  password: string;
+
+  @Column("varchar", { length: 45 })
+  course: string;
+
+  // // How you got to know about the platform
+  // @Column("varchar", { length: 45 })
+  // source: string;
+
+  // // Last access to the platform
+  // @Column("datetime")
+  // lastaccess: Date;
+
+  @OneToMany(type => SavedSchedules, savedschedules => savedschedules.user, {
+    cascade: true,
     onDelete: "CASCADE"
   })
-  @JoinTable()
-  subjects: Subjects[];
+  savedschedules: SavedSchedules[];
 }

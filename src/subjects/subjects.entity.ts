@@ -1,6 +1,6 @@
 ﻿import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Classes } from "./classes/classes.entity";
-import { Users } from "../users/user.entity";
+import { SavedSchedules } from "src/users/savedschedules/savedschedules.entity";
 
 @Entity()
 export class Subjects {
@@ -19,9 +19,9 @@ export class Subjects {
   })
   classes: Classes[];
 
-  @ManyToMany(() => Users, {
-    onDelete: "CASCADE"
+  @ManyToMany(() => SavedSchedules, {
+    onDelete: "NO ACTION"
   })
   @JoinTable()
-  users: Users[];
+  savedschedules: SavedSchedules[];
 }
