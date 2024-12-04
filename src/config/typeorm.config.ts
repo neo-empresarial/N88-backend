@@ -14,10 +14,15 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   entities: [
     __dirname + '/../**/*.entity{.ts,.js}',
   ],
-  synchronize: false, // Remove this line in production
+  synchronize: true, // Remove this line in production
   autoLoadEntities: true,
-  migrationsTableName: 'typeorm_migrations',
-  migrationsRun: false,
+
+  // Migrations
+  // migrations: [
+  //   __dirname + '/../**/*.entity{.ts,.js}',
+  // ],
+  // migrationsTableName: 'typeorm_migrations',
+  // migrationsRun: true,
 }
 
 export const connectionSource = new DataSource(typeOrmConfig as DataSourceOptions);

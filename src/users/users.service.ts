@@ -1,16 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUsersDto } from './dto/create-users.dto';
-import { Subjects } from 'src/subjects/subjects.entity';
+
+import { hash } from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(Subjects)
-    private readonly subjectsRepository: Repository<Subjects>,
-
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
   ) { }
@@ -23,46 +21,47 @@ export class UsersService {
     return result;
   }
 
-  async findByCode(code: string): Promise<Users> {
+  async findOneByEmail(email: string): Promise<Users> {
     const result = await this.usersRepository.findOne({
-      where: { code: code },
+      where: { email: email },
+    });
+
+    if (!result) {
+      throw new NotFoundException(`User with email '${email}' not found`);
+    }
+
+    return result;
+  }
+
+  async findById(id: number): Promise<Users> {
+    const result = await this.usersRepository.findOne({
+      where: { iduser: id },
       relations: ["subjects", "subjects.schedules", "subjects.professors"]
     });
 
     if (!result) {
-      throw new NotFoundException(`User with code '${code}' not found`);
+      throw new NotFoundException(`User with code '${id}' not found`);
     }
 
     return result;
   }
 
   async create(CreateUsersDto: CreateUsersDto) {
-    const user_with_same_code = await this.usersRepository.findOne({
-      where: { code: CreateUsersDto.code }
-    });
-
-    if (user_with_same_code) {
-      throw new BadRequestException(`User with code ${CreateUsersDto.code} already exists, the code must be unique`);
-    }
-
-    const subjects = CreateUsersDto.subjects;
-
-    const subjects_objects = await Promise.all(subjects.map(async (subject) => {
-      return this.subjectsRepository.findOne({
-        where: { idsubject: subject }
-      });
-    }))
-
     const newUsers = new Users();
-    newUsers.code = CreateUsersDto.code;
-    newUsers.subjects = subjects_objects;
+    newUsers.name = CreateUsersDto.name;
+    newUsers.email = CreateUsersDto.email;
+
+    const hash_password = await hash(CreateUsersDto.password, 10);
+
+    newUsers.password = hash_password;
+    newUsers.course = CreateUsersDto.course;
 
     return this.usersRepository.save(newUsers);
   }
 
   async deleteOne(id: number) {
     const result = await this.usersRepository.findOne({
-      where: { idsavedschedule: id }
+      where: { iduser: id }
     });
 
     if (!result) {
@@ -71,4 +70,5 @@ export class UsersService {
 
     return this.usersRepository.remove(result);
   }
+
 }

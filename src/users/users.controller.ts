@@ -12,8 +12,8 @@ export class UsersController {
   }
 
   @Get(':code')
-  async findByCode(@Param('code') code: string){
-    return this.usersService.findByCode(code);
+  async findById(@Param('code') id: number){
+    return this.usersService.findById(id);
   }
 
   @Post()
