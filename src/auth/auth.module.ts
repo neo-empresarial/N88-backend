@@ -6,10 +6,11 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UsersModule } from 'src/users/users.module';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 
 @Module({
   imports: [UsersModule, PassportModule, JwtModule],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy] // https://www.youtube.com/watch?v=S8Cjx5ua2JU 1:03:29
+  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshStrategy]
 })
 export class AuthModule {}

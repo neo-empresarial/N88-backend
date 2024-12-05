@@ -26,6 +26,9 @@ export class Users {
   // @Column("datetime")
   // lastaccess: Date;
 
+  @Column({ nullable: true })
+  refreshToken: string;
+
   @OneToMany(type => SavedSchedules, savedschedules => savedschedules.user, {
     cascade: true,
     onDelete: "CASCADE"

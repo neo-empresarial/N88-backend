@@ -5,8 +5,10 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import { config as dotenvConfig } from 'dotenv';
 import { TokenPayload } from "../auth-payload.interface";
 import { UsersService } from "src/users/users.service";
+import { Injectable } from "@nestjs/common";
 dotenvConfig({ path: '.env' });
 
+@Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly usersService: UsersService) {
     super({

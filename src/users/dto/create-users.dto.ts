@@ -16,4 +16,7 @@ export class CreateUsersDto {
   @IsNotEmpty()
   @IsString()
   course: string;
+
+  @IsString()
+  refreshToken: string;
 }
