@@ -84,4 +84,37 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
+  async findOrCreateGoogleUser(googlePayload: any) {
+    const user = await this.usersRepository.findOne({
+      where: { email: googlePayload.email },
+    });
+
+    if (user) {
+      return user;
+    }
+
+    const newUser = new Users();
+    newUser.name = googlePayload.name;
+    newUser.email = googlePayload.email;
+    newUser.course = "N/A";
+    newUser.googleAccessToken = googlePayload.access_token;
+    newUser.authType = 'google';
+
+    return this.usersRepository.save(newUser);
+  }
+
+  async checkExtraInfo(id: number){
+    const user = await this.findById(id);
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    if (user.course == "N/A") {
+      throw new NotFoundException(`User with id ${id} has no course information`);
+    }
+
+    return user;
+  }
+
 }

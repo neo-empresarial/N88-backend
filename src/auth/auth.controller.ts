@@ -1,4 +1,4 @@
-import { Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentUser } from './current-user.decorator';
 import { Users } from 'src/users/user.entity';
@@ -17,6 +17,14 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response
   ) {
     await this.authService.login(user, response);
+  }
+
+  @Post('login/google')
+  async loginWithGoogle(
+    @Body('googleAccessToken') googleAccessToken: string,
+    @Res() response: Response,
+  ) {
+    return this.authService.loginWithGoogle(googleAccessToken, response);
   }
 
   @Post('refresh')

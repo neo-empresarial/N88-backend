@@ -19,6 +19,11 @@ export class UsersController {
     return this.usersService.findById(id);
   }
 
+  @Get(':id/check_extra_info')
+  async checkExtraInfo(@Param('id') id: number){
+    return this.usersService.checkExtraInfo(id);
+  }
+
   @Post()
   async create(@Body(ValidationPipe) createUsersDto: CreateUsersDto) {
     return this.usersService.create(createUsersDto);

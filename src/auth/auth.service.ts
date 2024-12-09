@@ -8,55 +8,62 @@ import { TokenPayload } from './auth-payload.interface';
 import { hash } from 'bcryptjs';
 
 import { config as dotenvConfig } from 'dotenv';
+import { GoogleAuthService } from './google-auth.service';
 dotenvConfig({ path: '.env' });
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly googleAuthService: GoogleAuthService,
   ) { }
 
-  async login(user: Users, response: Response) {
+  private async generateAndSetTokens(user: Users, response: Response) {
     const expiresAccessToken = new Date();
     expiresAccessToken.setMilliseconds(
-      expiresAccessToken.getTime() + parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS)
+      expiresAccessToken.getTime() + parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
     );
-
+  
     const expiresRefreshToken = new Date();
     expiresRefreshToken.setMilliseconds(
-      expiresRefreshToken.getTime() + parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS)
+      expiresRefreshToken.getTime() + parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS),
     );
-
-    const tokenPayload: TokenPayload = {
-      userId: user.iduser,
-    }
-
+  
+    const tokenPayload: TokenPayload = { userId: user.iduser };
+  
     const accessToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS}ms`
-    })
+      expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS}ms`,
+    });
+  
     const refreshToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS}ms`
+      expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS}ms`,
     });
-    
+  
     await this.usersService.updateUser(user.iduser, {
-      refreshToken: await hash(refreshToken, 10)
-    })
-
+      refreshToken: await hash(refreshToken, 10),
+    });
+  
     response.cookie('Authentication', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // if true in development, it will not work
-      expires: expiresAccessToken
-    })
+      secure: process.env.NODE_ENV === 'production',
+      expires: expiresAccessToken,
+    });
+  
     response.cookie('Refresh', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // if true in development, it will not work
-      expires: expiresRefreshToken
-    })
-
+      secure: process.env.NODE_ENV === 'production',
+      expires: expiresRefreshToken,
+    });
+  
     return response.json(user);
+  }
+
+  // Normal Login functions
+  async login(user: Users, response: Response) {
+    return this.generateAndSetTokens(user, response);
   }
 
   async verifyUser(email: string, password: string) {
@@ -75,7 +82,23 @@ export class AuthService {
     return user;
   }
 
-  async verifyUserRefreshToken(refreshToken: string, userId: number){
+  // Google Login functions
+  async loginWithGoogle(googleAccessToken: string, response: Response) {
+    const user = await this.usersService.findOrCreateGoogleUser(
+      await this.googleAuthService.verifyGoogleToken(googleAccessToken),
+    );
+
+    await this.usersService.updateUser(user.iduser, { googleAccessToken });
+    return this.generateAndSetTokens(user, response);
+  }
+
+  async verifyGoogleUser(googleAccessToken: string) {
+    const googlePayload = await this.googleAuthService.verifyGoogleToken(googleAccessToken);
+
+    return this.usersService.findOneByEmail(googlePayload.email);
+  }
+
+  async verifyUserRefreshToken(refreshToken: string, userId: number) {
     const user = await this.usersService.findById(userId);
 
     if (!user) {
@@ -90,4 +113,6 @@ export class AuthService {
 
     return user;
   }
+
+
 }

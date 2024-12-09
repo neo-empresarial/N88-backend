@@ -19,4 +19,7 @@ export class CreateUsersDto {
 
   @IsString()
   refreshToken: string;
+
+  @IsString()
+  googleAccessToken: string;
 }

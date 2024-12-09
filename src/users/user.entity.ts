@@ -12,7 +12,7 @@ export class Users {
   @Column("varchar", { length: 55 })
   email: string;
 
-  @Column("varchar", { length: 255 })
+  @Column("varchar", { length: 255, nullable: true })  // Nullable for Google users
   password: string;
 
   @Column("varchar", { length: 45 })
@@ -26,8 +26,15 @@ export class Users {
   // @Column("datetime")
   // lastaccess: Date;
 
+  // Field to identify whether the user is using local authentication or Google OAuth
+  @Column("varchar", { length: 10, nullable: false, default: 'local' }) // 'local' or 'google'
+  authType: string;
+
   @Column({ nullable: true })
   refreshToken: string;
+
+  @Column({ nullable: true })
+  googleAccessToken: string; // Storing Google access token for Google users
 
   @OneToMany(type => SavedSchedules, savedschedules => savedschedules.user, {
     cascade: true,

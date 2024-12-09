@@ -2,7 +2,6 @@
 import { PassportStrategy } from "@nestjs/passport";
 import { Request } from "express";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { UsersService } from "src/users/users.service";
 import { TokenPayload } from "../auth-payload.interface";
 import { AuthService } from "../auth.service";
 
