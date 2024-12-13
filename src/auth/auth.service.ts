@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, ParseIntPipe, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { compare } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -9,6 +9,7 @@ import { hash } from 'bcryptjs';
 
 import { config as dotenvConfig } from 'dotenv';
 import { GoogleAuthService } from './google-auth.service';
+import { CreateUsersDto } from 'src/users/dto/create-users.dto';
 dotenvConfig({ path: '.env' });
 
 @Injectable()
@@ -66,37 +67,33 @@ export class AuthService {
     return this.generateAndSetTokens(user, response);
   }
 
-  async verifyUser(email: string, password: string) {
+  async validateLocalUser(email: string, password: string) {
     const user = await this.usersService.findOneByEmail(email);
 
-    if (!user) {
-      throw new BadRequestException('User not found');
-    }
-
+    if (!user) throw new BadRequestException('User not found');
+    
     const authenticaded = await compare(password, user.password);
 
-    if (!authenticaded) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    return user;
+    if (!authenticaded) throw new UnauthorizedException('Invalid credentials');
+    
+    return {id: user.iduser, name: user.name};
   }
 
   // Google Login functions
-  async loginWithGoogle(googleAccessToken: string, response: Response) {
-    const user = await this.usersService.findOrCreateGoogleUser(
-      await this.googleAuthService.verifyGoogleToken(googleAccessToken),
-    );
+  // async loginWithGoogle(googleAccessToken: string, response: Response) {
+  //   const user = await this.usersService.findOrCreateGoogleUser(
+  //     await this.googleAuthService.verifyGoogleToken(googleAccessToken),
+  //   );
 
-    await this.usersService.updateUser(user.iduser, { googleAccessToken });
-    return this.generateAndSetTokens(user, response);
-  }
+  //   await this.usersService.updateUser(user.iduser, { googleAccessToken });
+  //   return this.generateAndSetTokens(user, response);
+  // }
 
-  async verifyGoogleUser(googleAccessToken: string) {
-    const googlePayload = await this.googleAuthService.verifyGoogleToken(googleAccessToken);
+  // async verifyGoogleUser(googleAccessToken: string) {
+  //   const googlePayload = await this.googleAuthService.verifyGoogleToken(googleAccessToken);
 
-    return this.usersService.findOneByEmail(googlePayload.email);
-  }
+  //   return this.usersService.findOneByEmail(googlePayload.email);
+  // }
 
   async verifyUserRefreshToken(refreshToken: string, userId: number) {
     const user = await this.usersService.findById(userId);
@@ -114,5 +111,14 @@ export class AuthService {
     return user;
   }
 
+  async register(createUsersDto: CreateUsersDto) {
+    const user = await this.usersService.findOneByEmail(createUsersDto.email);
+
+    if (user) {
+      throw new ConflictException('User already exists');
+    }
+
+    return this.usersService.create(createUsersDto);
+  }
 
 }

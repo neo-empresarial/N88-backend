@@ -12,6 +12,6 @@ import { GoogleAuthService } from './google-auth.service';
 @Module({
   imports: [UsersModule, PassportModule, JwtModule],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshStrategy, GoogleAuthService]
+  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshStrategy, GoogleAuthService, JwtService],
 })
 export class AuthModule {}

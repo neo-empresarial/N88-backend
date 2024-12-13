@@ -8,9 +8,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('/')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard) 
   async findAll() {
     return this.usersService.findAll();
+  }
+
+  @Get('/check_extra_info')
+  async checkExtraInfo(@Param('email') email: string){
+    return this.usersService.checkExtraInfo(email);
   }
 
   @Get(':id')
@@ -18,11 +23,7 @@ export class UsersController {
   async findById(@Param('id') id: number){
     return this.usersService.findById(id);
   }
-
-  @Get(':id/check_extra_info')
-  async checkExtraInfo(@Param('id') id: number){
-    return this.usersService.checkExtraInfo(id);
-  }
+  
 
   @Post()
   async create(@Body(ValidationPipe) createUsersDto: CreateUsersDto) {
