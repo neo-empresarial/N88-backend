@@ -16,6 +16,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   ],
   synchronize: true, // Remove this line in production
   autoLoadEntities: true,
+  ssl: true,
 
   // Migrations
   // migrations: [
