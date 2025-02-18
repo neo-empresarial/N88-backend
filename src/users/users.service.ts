@@ -1,68 +1,65 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUsersDto } from './dto/create-users.dto';
-import { Subjects } from 'src/subjects/subjects.entity';
+
+import { hash } from 'bcryptjs';
+import { UpdateUsersDto } from './dto/update-users.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(Subjects)
-    private readonly subjectsRepository: Repository<Subjects>,
-
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
   ) { }
 
   async findAll(): Promise<Users[]> {
     const result = this.usersRepository.find({
-      relations: ["subjects"]
+      relations: ["savedschedules"]
     });
 
     return result;
   }
 
-  async findByCode(code: string): Promise<Users> {
+  async findOneByEmail(email: string): Promise<Users> {
     const result = await this.usersRepository.findOne({
-      where: { code: code },
-      relations: ["subjects", "subjects.schedules", "subjects.professors"]
+      where: { email: email },
+    });
+
+    return result;
+  }
+
+  async findById(id: number): Promise<Users> {
+    const result = await this.usersRepository.findOne({
+      where: { iduser: id },
+      relations: ["savedschedules"]
     });
 
     if (!result) {
-      throw new NotFoundException(`User with code '${code}' not found`);
+      throw new NotFoundException(`User with code '${id}' not found`);
     }
 
     return result;
   }
 
   async create(CreateUsersDto: CreateUsersDto) {
-    const user_with_same_code = await this.usersRepository.findOne({
-      where: { code: CreateUsersDto.code }
-    });
+    const newUsers = new Users();
+    newUsers.name = CreateUsersDto.name;
+    newUsers.email = CreateUsersDto.email;
 
-    if (user_with_same_code) {
-      throw new BadRequestException(`User with code ${CreateUsersDto.code} already exists, the code must be unique`);
+    if (CreateUsersDto.password) {
+      newUsers.password = await hash(CreateUsersDto.password, 10);
     }
 
-    const subjects = CreateUsersDto.subjects;
-
-    const subjects_objects = await Promise.all(subjects.map(async (subject) => {
-      return this.subjectsRepository.findOne({
-        where: { idsubject: subject }
-      });
-    }))
-
-    const newUsers = new Users();
-    newUsers.code = CreateUsersDto.code;
-    newUsers.subjects = subjects_objects;
+    newUsers.course = CreateUsersDto.course;
 
     return this.usersRepository.save(newUsers);
   }
 
   async deleteOne(id: number) {
     const result = await this.usersRepository.findOne({
-      where: { idsavedschedule: id }
+      where: { iduser: id }
     });
 
     if (!result) {
@@ -71,4 +68,52 @@ export class UsersService {
 
     return this.usersRepository.remove(result);
   }
+
+  async updateUser(id: number, updateUserDto: UpdateUsersDto): Promise<Users> {
+    let user = await this.findById(id);
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    user = { ...user, ...updateUserDto };
+
+    return this.usersRepository.save(user);
+  }
+
+  async findOrCreateGoogleUser(googlePayload: any) {
+    const user = await this.usersRepository.findOne({
+      where: { email: googlePayload.email },
+    });
+
+    if (user) {
+      return user;
+    }
+
+    const newUser = new Users();
+    newUser.name = googlePayload.name;
+    newUser.email = googlePayload.email;
+    newUser.course = "N/A";
+    newUser.googleAccessToken = googlePayload.access_token;
+    newUser.authType = 'google';
+
+    return this.usersRepository.save(newUser);
+  }
+
+  async checkExtraInfo(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email: email }
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+
+    if (user.course == "N/A") {
+      throw new NotFoundException(`User with email ${email} has no course information`);
+    }
+
+    return user;
+  }
+
 }

@@ -27,6 +27,7 @@ export class SubjectsService {
   async findAll(): Promise<Subjects[]> {
     return this.subjectsRepository.find();
   }
+  
   async findAllWithRelations(): Promise<Subjects[]> {
     return this.subjectsRepository.find(
       {

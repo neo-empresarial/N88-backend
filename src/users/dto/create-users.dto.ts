@@ -1,10 +1,27 @@
-﻿import { IsNotEmpty, IsString } from "class-validator";
+﻿import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateUsersDto {
   @IsNotEmpty()
   @IsString()
-  code: string;
+  name: string;
 
   @IsNotEmpty()
-  subjects: number[];
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+
+  @IsNotEmpty()
+  @IsString()
+  course: string;
+
+  @IsString()
+  @IsOptional()
+  refreshToken: string;
+
+  @IsString()
+  @IsOptional()
+  googleAccessToken: string;
 }
