@@ -9,8 +9,21 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const allowedOrigins = [
+    "https://n88-frontend.vercel.app",
+    "https://www.n88-frontend.vercel.app",
+    "http://localhost:3000",
+    "https://n88-frontend-86m1hm3yx-kaique-valentim-costa-souzas-projects.vercel.app"
+  ];
+
   app.enableCors({
-    origin: "https://n88-frontend-86m1hm3yx-kaique-valentim-costa-souzas-projects.vercel.app",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     allowedHeaders: "Content-Type, Authorization",
     credentials: true,
