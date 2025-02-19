@@ -8,12 +8,7 @@ const allowedOrigins = ["https://n88-frontend.vercel.app", "https://www.n88-fron
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
-  });
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
     whitelist: true
