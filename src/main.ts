@@ -13,7 +13,6 @@ async function bootstrap() {
     "https://n88-frontend.vercel.app",
     "https://www.n88-frontend.vercel.app",
     "http://localhost:3000",
-    "https://n88-frontend-86m1hm3yx-kaique-valentim-costa-souzas-projects.vercel.app"
   ];
 
   app.enableCors({
