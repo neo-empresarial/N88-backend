@@ -10,8 +10,12 @@
     {
       "src": "/(.*)",
       "dest": "src/main.ts",
-      "methods": ["GET", "POST", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS"]
-      
+      "methods": ["GET", "POST", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://n88-frontend-86m1hm3yx-kaique-valentim-costa-souzas-projects.vercel.app",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
+      }
     }
   ]
 }
