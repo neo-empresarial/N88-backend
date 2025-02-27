@@ -1,10 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-// import * as cookieParser from 'cookie-parser';
+// import * as cookieParser from 'cookie-parser'; // Use this when in development
 import cookieParser from 'cookie-parser';
 
-// const allowedOrigins = ["https://n88-frontend.vercel.app", "https://www.n88-frontend.vercel.app", "http://localhost:3000", "https://n88-frontend-l413chunz-kaique-valentim-costa-souzas-projects.vercel.app"];
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
