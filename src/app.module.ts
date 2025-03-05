@@ -6,10 +6,17 @@ import { typeOrmConfig } from './config/typeorm.config';
 import { SubjectsModule } from './subjects/subjects.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(typeOrmConfig), SubjectsModule, UsersModule, AuthModule],
+  imports: [
+    TypeOrmModule.forRoot(typeOrmConfig),
+    SubjectsModule,
+    UsersModule,
+    FeedbackModule,
+    AuthModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

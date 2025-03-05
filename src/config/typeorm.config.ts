@@ -16,7 +16,11 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   ],
   synchronize: true, // Remove this line in production
   autoLoadEntities: true,
-  ssl: true,
+  
+  // ssl: true,
+  ssl: process.env.NODE_ENV === 'production'
+  ? { rejectUnauthorized: true } // Enforce strict SSL in production
+  : { rejectUnauthorized: false }, // Allow self-signed certs in dev
 
   // Migrations
   // migrations: [
