@@ -59,12 +59,14 @@ export class AuthService {
       expires: expiresRefreshToken,
     });
   
-    return response.json(user);
+    return { user, accessToken, refreshToken };
   }
 
   // Normal Login functions
-  async login(user: Users, response: Response) {
-    return this.generateAndSetTokens(user, response);
+  async login(user: Users, response: Response, userId?: number) {
+    const profile = await this.usersService.findById(userId);
+
+    return this.generateAndSetTokens(profile, response);
   }
 
   async validateLocalUser(email: string, password: string) {
@@ -119,6 +121,14 @@ export class AuthService {
     }
 
     return this.usersService.create(createUsersDto);
+  }
+
+  async validateGoogleUser(googleUser: CreateUsersDto) {
+    const user = await this.usersService.findOneByEmail(googleUser.email);
+
+    if (user) return user;
+
+    return await this.usersService.create(googleUser);
   }
 
 }
