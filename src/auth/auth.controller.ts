@@ -87,6 +87,6 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production',
       expires: expiresAccessToken,
     });
-    res.redirect(`http://localhost:3000/google-auth-callback?id=${iduser}&name=${name}`);
+    res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${name}`);
   }
 }
