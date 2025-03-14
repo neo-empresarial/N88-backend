@@ -8,10 +8,26 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { GoogleAuthService } from './google-auth.service';
+import { ConfigModule } from '@nestjs/config';
+import googleOauthConfig from 'src/config/google-oauth.config';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
-  imports: [UsersModule, PassportModule, JwtModule],
+  imports: [
+    UsersModule,
+    PassportModule,
+    JwtModule,
+    ConfigModule.forFeature(googleOauthConfig),
+  ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshStrategy, GoogleAuthService, JwtService],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    JwtRefreshStrategy,
+    GoogleAuthService,
+    JwtService,
+    GoogleStrategy,
+  ],
 })
 export class AuthModule {}
