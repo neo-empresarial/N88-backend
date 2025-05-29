@@ -1,4 +1,9 @@
-import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { compare } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -18,67 +23,107 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly googleAuthService: GoogleAuthService,
-  ) { }
+  ) {}
 
   private async generateAndSetTokens(user: Users, response: Response) {
     const expiresAccessToken = new Date();
     expiresAccessToken.setMilliseconds(
-      expiresAccessToken.getTime() + parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
+      expiresAccessToken.getTime() +
+        parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
     );
-  
+
     const expiresRefreshToken = new Date();
     expiresRefreshToken.setMilliseconds(
-      expiresRefreshToken.getTime() + parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS),
+      expiresRefreshToken.getTime() +
+        parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS),
     );
-  
+
     const tokenPayload: TokenPayload = { userId: user.iduser };
-  
+
     const accessToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS}ms`,
     });
-  
+
     const refreshToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
       expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS}ms`,
     });
-  
+
     await this.usersService.updateUser(user.iduser, {
       refreshToken: await hash(refreshToken, 10),
     });
-  
+
     response.cookie('Authentication', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       expires: expiresAccessToken,
     });
-  
+
     response.cookie('Refresh', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       expires: expiresRefreshToken,
     });
-  
+
     return { user, accessToken, refreshToken };
   }
 
   // Normal Login functions
   async login(user: Users, response: Response, userId?: number) {
-    const profile = await this.usersService.findById(userId);
+    console.log('=== Login Method Start ===');
+    console.log('Input user:', user);
+    console.log('Input userId:', userId);
 
-    return this.generateAndSetTokens(profile, response);
+    const profile = await this.usersService.findById(userId);
+    console.log('User profile from database:', profile);
+
+    const { accessToken } = await this.generateAndSetTokens(profile, response);
+    console.log('Generated access token:', accessToken);
+
+    const responseData = {
+      user: {
+        id: profile.iduser,
+        name: profile.name,
+        email: profile.email,
+      },
+      accessToken,
+    };
+    console.log('Response data:', responseData);
+    console.log('=== Login Method End ===');
+
+    return responseData;
   }
 
   async validateLocalUser(email: string, password: string) {
+    console.log('=== Validate Local User Start ===');
+    console.log('Validating user with email:', email);
+
     const user = await this.usersService.findOneByEmail(email);
+    console.log('User from database:', user);
 
-    if (!user) throw new BadRequestException('User not found');
-    
-    const authenticaded = await compare(password, user.password);
+    if (!user) {
+      console.log('User not found');
+      throw new BadRequestException('User not found');
+    }
 
-    if (!authenticaded) throw new UnauthorizedException('Invalid credentials');
-    
-    return {id: user.iduser, name: user.name};
+    const authenticated = await compare(password, user.password);
+    console.log('Password authentication result:', authenticated);
+
+    if (!authenticated) {
+      console.log('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const response = {
+      iduser: user.iduser,
+      name: user.name,
+      email: user.email,
+    };
+    console.log('Returning user data:', response);
+    console.log('=== Validate Local User End ===');
+
+    return response;
   }
 
   // Google Login functions
@@ -126,9 +171,11 @@ export class AuthService {
   async validateGoogleUser(googleUser: CreateUsersDto) {
     const user = await this.usersService.findOneByEmail(googleUser.email);
 
-    if (user) return user;
+    if (user) {
+      return { ...user, email: googleUser.email };
+    }
 
-    return await this.usersService.create(googleUser);
+    const newUser = await this.usersService.create(googleUser);
+    return { ...newUser, email: googleUser.email };
   }
-
 }

@@ -7,6 +7,7 @@ import { SubjectsModule } from './subjects/subjects.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { FeedbackModule } from './feedback/feedback.module';
+import { GroupsModule } from './groups/groups.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { FeedbackModule } from './feedback/feedback.module';
     SubjectsModule,
     UsersModule,
     FeedbackModule,
-    AuthModule
+    AuthModule,
+    GroupsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

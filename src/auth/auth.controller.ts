@@ -33,8 +33,17 @@ export class AuthController {
     @Request() req,
     @Res({ passthrough: true }) response: Response,
   ) {
-    await this.authService.login(user, response);
-    return req.user;
+    console.log('=== Login Controller Start ===');
+    console.log('Current user from decorator:', user);
+    console.log('User from request:', req.user);
+
+    console.log('User ID from controller:', user.iduser);
+    const result = await this.authService.login(user, response, user.iduser);
+    console.log('Login result from service:', result);
+
+    console.log('Returning user data:', result);
+    console.log('=== Login Controller End ===');
+    return result;
   }
 
   @Post('refresh')
@@ -75,18 +84,21 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
-    const { iduser, name } = req.user;
-    console.log(req.user);
-    const { accessToken } = await this.authService.login(iduser, res);
+    const { iduser, name, email } = req.user;
+    console.log('Google user data:', req.user);
+    const result = await this.authService.login(req.user, res);
     const expiresAccessToken = new Date();
     expiresAccessToken.setMilliseconds(
-      expiresAccessToken.getTime() + parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
+      expiresAccessToken.getTime() +
+        parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
     );
-    res.cookie('Authentication', accessToken, {
+    res.cookie('Authentication', result.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       expires: expiresAccessToken,
     });
-    res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${name}`);
+    res.redirect(
+      `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${name}&email=${email}`,
+    );
   }
 }

@@ -12,28 +12,41 @@ export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Users[]> {
     const result = this.usersRepository.find({
-      relations: ["savedschedules"]
+      relations: ['savedschedules'],
     });
 
     return result;
   }
 
   async findOneByEmail(email: string): Promise<Users> {
+    console.log('=== Find One By Email Start ===');
+    console.log('Searching for user with email:', email);
+
     const result = await this.usersRepository.findOne({
       where: { email: email },
+      select: [
+        'iduser',
+        'name',
+        'email',
+        'password',
+        'course',
+        'authType',
+        'refreshToken',
+        'googleAccessToken',
+      ],
     });
-
+    console.log('User found by email:', result);
     return result;
   }
 
   async findById(id: number): Promise<Users> {
     const result = await this.usersRepository.findOne({
       where: { iduser: id },
-      relations: ["savedschedules"]
+      relations: ['savedschedules'],
     });
 
     if (!result) {
@@ -59,7 +72,7 @@ export class UsersService {
 
   async deleteOne(id: number) {
     const result = await this.usersRepository.findOne({
-      where: { iduser: id }
+      where: { iduser: id },
     });
 
     if (!result) {
@@ -93,7 +106,7 @@ export class UsersService {
     const newUser = new Users();
     newUser.name = googlePayload.name;
     newUser.email = googlePayload.email;
-    newUser.course = "N/A";
+    newUser.course = 'N/A';
     newUser.googleAccessToken = googlePayload.access_token;
     newUser.authType = 'google';
 
@@ -102,18 +115,19 @@ export class UsersService {
 
   async checkExtraInfo(email: string) {
     const user = await this.usersRepository.findOne({
-      where: { email: email }
+      where: { email: email },
     });
 
     if (!user) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
 
-    if (user.course == "N/A") {
-      throw new NotFoundException(`User with email ${email} has no course information`);
+    if (user.course == 'N/A') {
+      throw new NotFoundException(
+        `User with email ${email} has no course information`,
+      );
     }
 
     return user;
   }
-
 }
