@@ -31,6 +31,7 @@ export class GroupsController {
 
   @Get()
   findAll(@Request() req) {
+    console.log('Finding all groups for user:', req.user.iduser);
     return this.groupsService.findAll(req.user.iduser);
   }
 
@@ -53,15 +54,15 @@ export class GroupsController {
     return this.groupsService.update(id, updateGroupDto, req.user.iduser);
   }
 
-  @Post(':id/members')
+  @Post(':id/members/:userId')
   addMember(
     @Param('id') id: string,
-    @Body() addMemberDto: AddMemberDto,
+    @Param('userId') userId: string,
     @Request() req,
   ) {
     return this.groupsService.addMember(
       id,
-      addMemberDto.userId,
+      userId,
       req.user.iduser,
     );
   }

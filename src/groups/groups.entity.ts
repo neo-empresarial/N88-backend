@@ -1,5 +1,13 @@
 import { Users } from '../users/user.entity';
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity()
 export class Group {
@@ -15,10 +23,18 @@ export class Group {
   @Column('int')
   createdBy: number; // Reference to the user who created the group
 
+  @ManyToOne(() => Users)
+  @JoinColumn({ name: 'createdBy', referencedColumnName: 'iduser' })
+  owner: Users;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt: Date;
 
   // Many-to-many relationship with Users
@@ -27,7 +43,7 @@ export class Group {
     name: 'group_members', // Junction table name
     joinColumn: {
       name: 'groupId',
-      referencedColumnName:'id',  // References Group.id
+      referencedColumnName: 'id', // References Group.id
     },
     inverseJoinColumn: {
       name: 'userId',

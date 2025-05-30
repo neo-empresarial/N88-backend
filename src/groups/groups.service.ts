@@ -54,8 +54,16 @@ export class GroupsService {
     return this.groupRepository
       .createQueryBuilder('group')
       .leftJoinAndSelect('group.owner', 'owner')
-      .leftJoinAndSelect('group.members', 'members')
-      .where('members.id = :userId', { userId })
+      .leftJoin('group.members', 'members')
+      .leftJoinAndSelect('group.members', 'groupMembers')
+      .where('members.iduser = :userId', { userId })
+      .select([
+        'group',
+        'owner',
+        'groupMembers.iduser',
+        'groupMembers.name',
+        'groupMembers.email',
+      ])
       .getMany();
   }
 
@@ -63,9 +71,17 @@ export class GroupsService {
     const group = await this.groupRepository
       .createQueryBuilder('group')
       .leftJoinAndSelect('group.owner', 'owner')
-      .leftJoinAndSelect('group.members', 'members')
+      .leftJoin('group.members', 'members')
+      .leftJoinAndSelect('group.members', 'groupMembers')
       .where('group.id = :id', { id })
-      .andWhere('members.id = :userId', { userId })
+      .andWhere('members.iduser = :userId', { userId })
+      .select([
+        'group',
+        'owner',
+        'groupMembers.iduser',
+        'groupMembers.name',
+        'groupMembers.email',
+      ])
       .getOne();
 
     if (!group) {
