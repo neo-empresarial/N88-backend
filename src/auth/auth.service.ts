@@ -27,23 +27,28 @@ export class AuthService {
 
   private async generateAndSetTokens(user: Users, response: Response) {
     const expiresAccessToken = new Date();
+    const expirationMs = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS);
     expiresAccessToken.setMilliseconds(
-      expiresAccessToken.getTime() +
-        parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
+      expiresAccessToken.getMilliseconds() + expirationMs,
     );
 
-    const expiresRefreshToken = new Date();
-    expiresRefreshToken.setMilliseconds(
-      expiresRefreshToken.getTime() +
-        parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS),
-    );
+    console.log('=== Token Generation ===');
+    console.log('Access token expiration:', {
+      currentTime: new Date().toISOString(),
+      expirationTime: expiresAccessToken.toISOString(),
+      durationMs: expirationMs,
+    });
 
     const tokenPayload: TokenPayload = { userId: user.iduser };
+    console.log('Token payload:', tokenPayload);
 
     const accessToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS}ms`,
+      expiresIn: `${expirationMs}ms`,
     });
+
+    console.log('Generated access token:', accessToken);
+    console.log('=== Token Generation End ===');
 
     const refreshToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
@@ -63,7 +68,7 @@ export class AuthService {
     response.cookie('Refresh', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      expires: expiresRefreshToken,
+      expires: expiresAccessToken,
     });
 
     return { user, accessToken, refreshToken };

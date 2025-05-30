@@ -15,10 +15,10 @@ import { GroupsService } from './groups.service';
 import { CreateGroupDto } from './dtos/create-group.dto';
 import { UpdateGroupDto } from './dtos/update-group.dto';
 import { AddMemberDto } from './dtos/add-member.dto';
-import { JwtRefreshGuard } from '../auth/guards/jwt-refresh-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('groups')
-@UseGuards(JwtRefreshGuard)
+@UseGuards(JwtAuthGuard)
 export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
 

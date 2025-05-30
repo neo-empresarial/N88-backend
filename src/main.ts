@@ -8,9 +8,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const allowedOrigins = [
-    "https://n88-frontend.vercel.app",
-    "https://www.n88-frontend.vercel.app",
-    "http://localhost:3000",
+    'https://n88-frontend.vercel.app',
+    'https://www.n88-frontend.vercel.app',
+    'http://localhost:3000',
   ];
 
   app.enableCors({
@@ -18,18 +18,21 @@ async function bootstrap() {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        callback(new Error('Not allowed by CORS'));
       }
     },
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    allowedHeaders: "Content-Type, Authorization",
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization, Cookie',
+    exposedHeaders: ['Set-Cookie'],
     credentials: true,
   });
 
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  );
   app.use(cookieParser()); //Cookie parser middleware
   await app.listen(8000);
 }
