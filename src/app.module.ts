@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { GroupsModule } from './groups/groups.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -17,10 +18,11 @@ import { GroupsModule } from './groups/groups.module';
     FeedbackModule,
     AuthModule,
     GroupsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 
 //teste
-export class AppModule { }
+export class AppModule {}

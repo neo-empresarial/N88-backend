@@ -60,11 +60,7 @@ export class GroupsController {
     @Param('userId') userId: string,
     @Request() req,
   ) {
-    return this.groupsService.addMember(
-      id,
-      userId,
-      req.user.iduser,
-    );
+    return this.groupsService.addMember(id, userId, req.user.iduser);
   }
 
   @Delete(':id/members/:userId')
@@ -74,6 +70,15 @@ export class GroupsController {
     @Request() req,
   ) {
     return this.groupsService.removeMember(id, userId, req.user.iduser);
+  }
+
+  @Post(':id/leave')
+  leaveGroup(@Param('id') id: string, @Request() req) {
+    return this.groupsService.removeMember(
+      id,
+      req.user.iduser,
+      req.user.iduser,
+    );
   }
 
   @Delete(':id')
