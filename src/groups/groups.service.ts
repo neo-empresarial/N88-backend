@@ -11,6 +11,7 @@ import { Group } from './groups.entity';
 import { Users } from '../users/user.entity';
 import { CreateGroupDto } from './dtos/create-group.dto';
 import { UpdateGroupDto } from './dtos/update-group.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class GroupsService {
@@ -19,6 +20,7 @@ export class GroupsService {
     private groupRepository: Repository<Group>,
     @InjectRepository(Users)
     private userRepository: Repository<Users>,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(
@@ -32,22 +34,46 @@ export class GroupsService {
       throw new NotFoundException('User not found');
     }
 
-    // Get all members including the owner
-    const memberIds = [Number(ownerId), ...createGroupDto.members];
-    const members = await this.userRepository.findByIds(memberIds);
-
-    if (members.length !== memberIds.length) {
-      throw new NotFoundException('One or more users not found');
-    }
-
+    // Create group with only the owner as member initially
     const group = this.groupRepository.create({
       name: createGroupDto.name,
       description: createGroupDto.description,
       createdBy: Number(ownerId),
-      members: members,
+      members: [owner], // Only add the owner initially
     });
 
-    return this.groupRepository.save(group);
+    const savedGroup = await this.groupRepository.save(group);
+
+    // Send invitations to all selected users
+    if (createGroupDto.members && createGroupDto.members.length > 0) {
+      console.log('Sending invitations to users:', createGroupDto.members);
+      console.log('Group created with ID:', savedGroup.id);
+      console.log('Owner ID:', ownerId);
+
+      const invitationPromises = createGroupDto.members.map(async (userId) => {
+        try {
+          console.log(`Attempting to send invitation to user ${userId}...`);
+          const result = await this.notificationsService.createGroupInvitation(
+            Number(ownerId),
+            userId,
+            savedGroup.id,
+          );
+          console.log(
+            `Successfully sent invitation to user ${userId}:`,
+            result,
+          );
+          return result;
+        } catch (error) {
+          console.error(`Failed to send invitation to user ${userId}:`, error);
+          return null; // Continue with other invitations even if one fails
+        }
+      });
+
+      const results = await Promise.all(invitationPromises);
+      console.log('All invitation results:', results);
+    }
+
+    return savedGroup;
   }
 
   async findAll(userId: string): Promise<Group[]> {
