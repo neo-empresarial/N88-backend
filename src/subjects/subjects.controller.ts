@@ -18,7 +18,6 @@ import { SchedulesService } from './schedules/schedules.service';
 import { CreateSchedulesDto } from './schedules/dto/create-schedules.dto';
 import { Schedules } from './schedules/schedules.entity';
 import { CreateSubjectsSchedulesProfessorsDto } from './dto/create-subjects-schedules-professors.dto';
-import { GoogleAuth } from 'google-auth-library';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdateSubjectsDto } from './dto/update-subjects.dto';
 
@@ -28,26 +27,22 @@ export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
   @Get()
-  @UseGuards(GoogleAuth) //Não protege nada
   async findAll(): Promise<Subjects[]> {
     return this.subjectsService.findAll();
   }
 
   @Get('with-relations')
-  @UseGuards(GoogleAuth)
   async findAllWithRelations(): Promise<Subjects[]> {
     return this.subjectsService.findAllWithRelations();
   }
 
   @Get('search')
-  @UseGuards(GoogleAuth)
   async findByParameter(@Query() query: any): Promise<Subjects[]> {
     const { name } = query;
     return this.subjectsService.findByParameter(name);
   }
 
   @Get('by-codes')
-  @UseGuards(GoogleAuth)
   async findByCodes(@Query('codes') codes: string) {
     if (!codes) {
       return [];
@@ -57,7 +52,6 @@ export class SubjectsController {
   }
 
   @Get(':id')
-  @UseGuards(GoogleAuth)
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Subjects> {
     return this.subjectsService.findOne(id);
   }
