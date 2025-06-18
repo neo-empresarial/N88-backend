@@ -85,8 +85,7 @@ export class AuthController {
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
     const { iduser, name, email } = req.user;
-    console.log('Google user data:', req.user);
-    const result = await this.authService.login(req.user, res);
+    const result = await this.authService.login(req.user, req.user.iduser);
     const expiresAccessToken = new Date();
     expiresAccessToken.setMilliseconds(
       expiresAccessToken.getTime() +
@@ -98,7 +97,7 @@ export class AuthController {
       expires: expiresAccessToken,
     });
     res.redirect(
-      `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${name}&email=${email}`,
+      `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
     );
   }
 }

@@ -83,8 +83,12 @@ export class AuthService {
     const profile = await this.usersService.findById(userId);
     console.log('User profile from database:', profile);
 
-    const { accessToken } = await this.generateAndSetTokens(profile, response);
+    const { accessToken, refreshToken } = await this.generateAndSetTokens(
+      profile,
+      response,
+    );
     console.log('Generated access token:', accessToken);
+    console.log('Generated refresh token:', refreshToken);
 
     const responseData = {
       user: {
@@ -93,6 +97,7 @@ export class AuthService {
         email: profile.email,
       },
       accessToken,
+      refreshToken,
     };
     console.log('Response data:', responseData);
     console.log('=== Login Method End ===');
