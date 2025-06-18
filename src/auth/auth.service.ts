@@ -32,7 +32,6 @@ export class AuthService {
       expiresAccessToken.getMilliseconds() + expirationMs,
     );
 
-    console.log('=== Token Generation ===');
     console.log('Access token expiration:', {
       currentTime: new Date().toISOString(),
       expirationTime: expiresAccessToken.toISOString(),
@@ -40,15 +39,12 @@ export class AuthService {
     });
 
     const tokenPayload: TokenPayload = { userId: user.iduser };
-    console.log('Token payload:', tokenPayload);
 
     const accessToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       expiresIn: `${expirationMs}ms`,
     });
 
-    console.log('Generated access token:', accessToken);
-    console.log('=== Token Generation End ===');
 
     const refreshToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
@@ -76,19 +72,15 @@ export class AuthService {
 
   // Normal Login functions
   async login(user: Users, response: Response, userId?: number) {
-    console.log('=== Login Method Start ===');
-    console.log('Input user:', user);
-    console.log('Input userId:', userId);
+
 
     const profile = await this.usersService.findById(userId);
-    console.log('User profile from database:', profile);
 
     const { accessToken, refreshToken } = await this.generateAndSetTokens(
       profile,
       response,
     );
-    console.log('Generated access token:', accessToken);
-    console.log('Generated refresh token:', refreshToken);
+
 
     const responseData = {
       user: {
@@ -99,18 +91,16 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
-    console.log('Response data:', responseData);
-    console.log('=== Login Method End ===');
+
 
     return responseData;
   }
 
   async validateLocalUser(email: string, password: string) {
-    console.log('=== Validate Local User Start ===');
-    console.log('Validating user with email:', email);
+
 
     const user = await this.usersService.findOneByEmail(email);
-    console.log('User from database:', user);
+
 
     if (!user) {
       console.log('User not found');
@@ -130,8 +120,6 @@ export class AuthService {
       name: user.name,
       email: user.email,
     };
-    console.log('Returning user data:', response);
-    console.log('=== Validate Local User End ===');
 
     return response;
   }

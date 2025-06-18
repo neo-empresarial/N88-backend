@@ -46,9 +46,7 @@ export class GroupsService {
 
     // Send invitations to all selected users
     if (createGroupDto.members && createGroupDto.members.length > 0) {
-      console.log('Sending invitations to users:', createGroupDto.members);
-      console.log('Group created with ID:', savedGroup.id);
-      console.log('Owner ID:', ownerId);
+
 
       const invitationPromises = createGroupDto.members.map(async (userId) => {
         try {

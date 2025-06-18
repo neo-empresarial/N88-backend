@@ -60,7 +60,6 @@ export class SubjectsService {
   }
 
   async findOneByName(name: string): Promise<Subjects> {
-    console.log('find one by name:', name);
     const result = this.subjectsRepository.findOne({
       where: { name: name },
       relations: ['classes', 'classes.schedules', 'classes.professors'],

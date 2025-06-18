@@ -25,11 +25,7 @@ export class NotificationsService {
     recipientId: number,
     groupId: number,
   ): Promise<Notification> {
-    console.log('Creating group invitation:', {
-      senderId,
-      recipientId,
-      groupId,
-    });
+
 
     const sender = await this.userRepository.findOne({
       where: { iduser: senderId },
@@ -75,18 +71,15 @@ export class NotificationsService {
 
     const savedNotification =
       await this.notificationRepository.save(notification);
-    console.log('Created notification:', savedNotification);
     return savedNotification;
   }
 
   async getUserNotifications(userId: number): Promise<Notification[]> {
-    console.log('Fetching notifications for user:', userId);
 
     // First, let's try a simple query to see if we get any notifications at all
     const allNotifications = await this.notificationRepository.find({
       where: { recipient: { iduser: userId } },
     });
-    console.log('All notifications for user (simple query):', allNotifications);
 
     const notifications = await this.notificationRepository
       .createQueryBuilder('notification')
@@ -97,7 +90,6 @@ export class NotificationsService {
       .orderBy('notification.createdAt', 'DESC')
       .getMany();
 
-    console.log('Found notifications:', notifications);
     return notifications;
   }
 

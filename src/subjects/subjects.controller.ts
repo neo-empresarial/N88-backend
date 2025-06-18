@@ -49,12 +49,10 @@ export class SubjectsController {
   @Get('by-codes')
   @UseGuards(GoogleAuth)
   async findByCodes(@Query('codes') codes: string) {
-    console.log('Received codes:', codes);
     if (!codes) {
       return [];
     }
     const subjectCodes = codes.split(',').filter((code) => code.trim() !== '');
-    console.log('Filtered codes:', subjectCodes);
     return this.subjectsService.findByCodes(subjectCodes);
   }
 

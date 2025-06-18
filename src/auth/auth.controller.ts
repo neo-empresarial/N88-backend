@@ -33,16 +33,9 @@ export class AuthController {
     @Request() req,
     @Res({ passthrough: true }) response: Response,
   ) {
-    console.log('=== Login Controller Start ===');
-    console.log('Current user from decorator:', user);
-    console.log('User from request:', req.user);
 
-    console.log('User ID from controller:', user.iduser);
     const result = await this.authService.login(user, response, user.iduser);
-    console.log('Login result from service:', result);
 
-    console.log('Returning user data:', result);
-    console.log('=== Login Controller End ===');
     return result;
   }
 

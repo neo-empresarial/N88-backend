@@ -23,8 +23,7 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string): Promise<Users> {
-    console.log('=== Find One By Email Start ===');
-    console.log('Searching for user with email:', email);
+
 
     const result = await this.usersRepository.findOne({
       where: { email: email },
@@ -39,7 +38,6 @@ export class UsersService {
         'googleAccessToken',
       ],
     });
-    console.log('User found by email:', result);
     return result;
   }
 
