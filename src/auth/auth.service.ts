@@ -45,7 +45,6 @@ export class AuthService {
       expiresIn: `${expirationMs}ms`,
     });
 
-
     const refreshToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
       expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS}ms`,
@@ -72,15 +71,12 @@ export class AuthService {
 
   // Normal Login functions
   async login(user: Users, response: Response, userId?: number) {
-
-
     const profile = await this.usersService.findById(userId);
 
     const { accessToken, refreshToken } = await this.generateAndSetTokens(
       profile,
       response,
     );
-
 
     const responseData = {
       user: {
@@ -92,15 +88,11 @@ export class AuthService {
       refreshToken,
     };
 
-
     return responseData;
   }
 
   async validateLocalUser(email: string, password: string) {
-
-
     const user = await this.usersService.findOneByEmail(email);
-
 
     if (!user) {
       console.log('User not found');

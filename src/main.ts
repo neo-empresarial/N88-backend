@@ -34,7 +34,6 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser()); //Cookie parser middleware
-
-  await app.listen(3000);
+  await app.listen(8000);
 }
 bootstrap();
