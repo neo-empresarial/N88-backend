@@ -33,7 +33,6 @@ export class AuthController {
     @Request() req,
     @Res({ passthrough: true }) response: Response,
   ) {
-
     const result = await this.authService.login(user, response, user.iduser);
 
     return result;
@@ -48,28 +47,6 @@ export class AuthController {
     await this.authService.login(user, response);
   }
 
-  // @Post('login/google')
-  // @UseGuards(GoogleAuthGuard)
-  // async loginWithGoogle(
-  //   @Body('googleAccessToken') googleAccessToken: string,
-  //   @Res() response: Response,
-  // ) {
-  //   return this.authService.loginWithGoogle(googleAccessToken, response);
-  // }
-
-  @Get('google')
-  @UseGuards(GoogleAuthGuard)
-  async loginWithGoogle() {}
-
-  // @Get('google/callback')
-  // @UseGuards(GoogleAuthGuard)
-  // async googleCallback(
-  //   @CurrentUser() user: Users,
-  //   @Res({ passthrough: true }) response: Response,
-  // ) {
-  //   await this.authService.login(user, response);
-  // }
-
   @UseGuards(GoogleAuthGuard)
   @Get('google/login')
   googleLogin() {}
@@ -78,7 +55,7 @@ export class AuthController {
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
     const { iduser, name, email } = req.user;
-    const result = await this.authService.login(req.user, req.user.iduser);
+    const result = await this.authService.login(req.user, res);
     const expiresAccessToken = new Date();
     expiresAccessToken.setMilliseconds(
       expiresAccessToken.getTime() +
