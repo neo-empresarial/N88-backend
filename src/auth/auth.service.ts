@@ -47,18 +47,7 @@ export class AuthService {
       refreshToken: await hash(refreshToken, 10),
     });
   
-    response.cookie('Authentication', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      expires: expiresAccessToken,
-    });
-  
-    response.cookie('Refresh', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      expires: expiresRefreshToken,
-    });
-  
+    // Return tokens in response body for Bearer token authentication
     return { user, accessToken, refreshToken };
   }
 
