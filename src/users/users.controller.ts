@@ -8,7 +8,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Get('/')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   async findAll() {
     return this.usersService.findAll();
   }

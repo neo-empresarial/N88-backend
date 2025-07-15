@@ -1,26 +1,33 @@
-﻿import { Subjects } from "src/subjects/subjects.entity";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Users } from "../user.entity";
+﻿import {
+  Column,
+  Entity,
+  OneToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Users } from '../user.entity';
+import { SavedScheduleItems } from './savedscheduleitems.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class SavedSchedules {
   @PrimaryGeneratedColumn()
   idsavedschedule: number;
 
-  @Column("varchar", { length: 45 })
+  @Column('varchar', { length: 45 })
   title: string;
 
-  @Column("text")
+  @Column('text')
   description: string;
 
-  @ManyToOne(() => Users, user => user.savedschedules, {
-    onDelete: "CASCADE"
+  @ManyToOne(() => Users, (user) => user.savedschedules, {
+    onDelete: 'CASCADE',
   })
   user: Users;
 
-  @ManyToMany(() => Subjects, {
-    onDelete: "NO ACTION"
+  @OneToMany(() => SavedScheduleItems, (items) => items.savedSchedule, {
+    cascade: true,
   })
-  @JoinTable()
-  subjects: Subjects[];
+  @Exclude()
+  items: SavedScheduleItems[];
 }

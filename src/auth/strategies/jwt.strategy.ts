@@ -13,9 +13,36 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(JwtStrategy.name);
 
   constructor(private readonly usersService: UsersService) {
+    const secret = process.env.JWT_ACCESS_TOKEN_SECRET;
+
+
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_ACCESS_TOKEN_SECRET,
+
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request) => {
+          try {
+
+            const tokenFromCookie = request.cookies?.Authentication;
+            if (tokenFromCookie) {
+              return tokenFromCookie;
+            }
+
+            const authHeader = request.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+              const token = authHeader.substring(7);
+
+              return token;
+            }
+
+            return null;
+          } catch (error) {
+            console.error('Error extracting JWT:', error);
+            return null;
+          }
+        },
+      ]),
+      secretOrKey: secret,
+      passReqToCallback: true,
     });
   }
 
