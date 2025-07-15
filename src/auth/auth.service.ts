@@ -48,15 +48,16 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      expiresIn: `${expirationMs}ms`,
+      expiresIn: '1h', // 1 hour instead of 10 seconds
     });
 
     console.log('🔐 [TOKEN GENERATION] Access token created, length:', accessToken.length);
+    console.log('🔐 [TOKEN GENERATION] Access token expiration set to: 1h');
 
 
     const refreshToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS}ms`,
+      expiresIn: '7d', // 7 days instead of short expiration
     });
 
     await this.usersService.updateUser(user.iduser, {

@@ -19,7 +19,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     JwtModule.register({
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       signOptions: {
-        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS + 'ms',
+        expiresIn: '1h', // 1 hour instead of 10 seconds
       },
     }),
     ConfigModule.forFeature(googleOauthConfig),
