@@ -36,6 +36,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       refreshToken: '',
       googleAccessToken: accessToken,
     });
-    done(null, user);
+    done(null, { ...user, email: profile.emails[0].value });
   }
 }

@@ -1,21 +1,21 @@
-﻿import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { SavedSchedules } from "./savedschedules/savedschedules.entity";
+﻿import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { SavedSchedules } from './savedschedules/savedschedules.entity';
 
 @Entity()
 export class Users {
   @PrimaryGeneratedColumn()
   iduser: number;
 
-  @Column("varchar", { length: 100 })
+  @Column('varchar', { length: 100 })
   name: string;
 
-  @Column("varchar", { length: 55, unique: true })
+  @Column('varchar', { length: 55, unique: true })
   email: string;
 
-  @Column("varchar", { length: 255, nullable: true })  // Nullable for Google users
+  @Column('varchar', { length: 255, nullable: true }) // Nullable for Google users
   password: string;
 
-  @Column("varchar", { length: 45 })
+  @Column('varchar', { length: 45 })
   course: string;
 
   // // How you got to know about the platform
@@ -27,7 +27,7 @@ export class Users {
   // lastaccess: Date;
 
   // Field to identify whether the user is using local authentication or Google OAuth
-  @Column("varchar", { length: 10, nullable: false, default: 'local' }) // 'local' or 'google'
+  @Column('varchar', { length: 10, nullable: false, default: 'local' }) // 'local' or 'google'
   authType: string;
 
   @Column({ nullable: true })
@@ -36,9 +36,13 @@ export class Users {
   @Column({ nullable: true })
   googleAccessToken: string; // Storing Google access token for Google users
 
-  @OneToMany(type => SavedSchedules, savedschedules => savedschedules.user, {
-    cascade: true,
-    onDelete: "CASCADE"
-  })
+  @OneToMany(
+    (type) => SavedSchedules,
+    (savedschedules) => savedschedules.user,
+    {
+      cascade: true,
+      onDelete: 'CASCADE',
+    },
+  )
   savedschedules: SavedSchedules[];
 }
