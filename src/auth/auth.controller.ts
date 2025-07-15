@@ -16,6 +16,7 @@ import { AuthService } from './auth.service';
 import { JwtRefreshGuard } from './guards/jwt-refresh-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { CreateUsersDto } from 'src/users/dto/create-users.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -33,7 +34,6 @@ export class AuthController {
     @Request() req,
     @Res({ passthrough: true }) response: Response,
   ) {
-
     const result = await this.authService.login(user, response, user.iduser);
 
     return result;
@@ -92,5 +92,37 @@ export class AuthController {
     res.redirect(
       `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('test')
+  async testJwt(@Request() req) {
+    console.log('🧪 [JWT TEST] Endpoint called successfully');
+    console.log('🧪 [JWT TEST] User:', req.user);
+    return {
+      message: 'JWT is working!',
+      user: req.user,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('debug-jwt')
+  async debugJwt(@Request() req) {
+    console.log('🔍 [JWT DEBUG] Endpoint called');
+    console.log('🔍 [JWT DEBUG] Full request:', {
+      url: req.url,
+      method: req.method,
+      headers: req.headers,
+      cookies: req.cookies,
+      user: req.user,
+    });
+    return {
+      message: 'JWT debug info',
+      user: req.user,
+      headers: req.headers,
+      cookies: req.cookies,
+      timestamp: new Date().toISOString(),
+    };
   }
 }

@@ -15,34 +15,51 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly usersService: UsersService) {
     const secret = process.env.JWT_ACCESS_TOKEN_SECRET;
 
+    console.log('🔐 [JWT STRATEGY] Initializing with secret:', {
+      exists: !!secret,
+      length: secret?.length,
+      firstChars: secret?.substring(0, 10) + '...',
+    });
+
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
           try {
-            this.logger.debug('Extracting JWT from request');
-            this.logger.debug('Cookies:', request.cookies);
-            this.logger.debug(
-              'Authorization header:',
+            console.log('🔍 [JWT EXTRACTION] Starting JWT extraction');
+            console.log('🔍 [JWT EXTRACTION] Request URL:', request.url);
+            console.log(
+              '🔍 [JWT EXTRACTION] Cookies:',
+              JSON.stringify(request.cookies),
+            );
+            console.log(
+              '🔍 [JWT EXTRACTION] Authorization header:',
               request.headers.authorization,
             );
 
             const tokenFromCookie = request.cookies?.Authentication;
             if (tokenFromCookie) {
-              this.logger.debug('Found token in cookie');
+              console.log('🍪 [JWT EXTRACTION] Found token in cookie');
               return tokenFromCookie;
             }
 
             const authHeader = request.headers.authorization;
             if (authHeader && authHeader.startsWith('Bearer ')) {
               const token = authHeader.substring(7);
-              this.logger.debug('Found Bearer token');
+              console.log(
+                '🔑 [JWT EXTRACTION] Found Bearer token, length:',
+                token.length,
+              );
+              console.log(
+                '🔑 [JWT EXTRACTION] Token preview:',
+                token.substring(0, 20) + '...',
+              );
               return token;
             }
 
-            this.logger.debug('No token found');
+            console.log('❌ [JWT EXTRACTION] No token found');
             return null;
           } catch (error) {
-            console.error('Error extracting JWT:', error);
+            console.error('💥 [JWT EXTRACTION] Error extracting JWT:', error);
             return null;
           }
         },
@@ -51,12 +68,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       passReqToCallback: true,
     });
 
-    this.logger.debug('JWT Strategy - Secret exists:', !!secret);
-    this.logger.debug('JWT Strategy - Secret length:', secret?.length);
+    console.log('🔐 [JWT STRATEGY] Strategy configured successfully');
   }
 
   async validate(payload: TokenPayload) {
-    this.logger.debug('JWT Payload:', payload);
-    return this.usersService.findById(payload.userId);
+    console.log('🔍 [JWT VALIDATION] Starting validation');
+    console.log('🔍 [JWT VALIDATION] Payload:', payload);
+
+    try {
+      const user = await this.usersService.findById(payload.userId);
+      console.log('✅ [JWT VALIDATION] User found:', user ? 'Yes' : 'No');
+      console.log('✅ [JWT VALIDATION] User ID:', payload.userId);
+      return user;
+    } catch (error) {
+      console.error('❌ [JWT VALIDATION] Error finding user:', error);
+      throw error;
+    }
   }
 }

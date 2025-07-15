@@ -32,7 +32,7 @@ export class AuthService {
       expiresAccessToken.getMilliseconds() + expirationMs,
     );
 
-    console.log('Access token expiration:', {
+    console.log('🔐 [TOKEN GENERATION] Access token expiration:', {
       currentTime: new Date().toISOString(),
       expirationTime: expiresAccessToken.toISOString(),
       durationMs: expirationMs,
@@ -40,10 +40,18 @@ export class AuthService {
 
     const tokenPayload: TokenPayload = { userId: user.iduser };
 
+    console.log('🔐 [TOKEN GENERATION] Creating token with payload:', tokenPayload);
+    console.log('🔐 [TOKEN GENERATION] Using secret:', {
+      exists: !!process.env.JWT_ACCESS_TOKEN_SECRET,
+      length: process.env.JWT_ACCESS_TOKEN_SECRET?.length,
+    });
+
     const accessToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       expiresIn: `${expirationMs}ms`,
     });
+
+    console.log('🔐 [TOKEN GENERATION] Access token created, length:', accessToken.length);
 
 
     const refreshToken = this.jwtService.sign(tokenPayload, {
