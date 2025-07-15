@@ -32,55 +32,34 @@ export class AuthService {
       expiresAccessToken.getMilliseconds() + expirationMs,
     );
 
-    console.log('Access token expiration:', {
-      currentTime: new Date().toISOString(),
-      expirationTime: expiresAccessToken.toISOString(),
-      durationMs: expirationMs,
-    });
-
     const tokenPayload: TokenPayload = { userId: user.iduser };
 
     const accessToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      expiresIn: `${expirationMs}ms`,
+      expiresIn: '1h',
     });
-
 
     const refreshToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRATION_MS}ms`,
+      expiresIn: '7d', // 7 days instead of short expiration
     });
 
     await this.usersService.updateUser(user.iduser, {
       refreshToken: await hash(refreshToken, 10),
     });
 
-    response.cookie('Authentication', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      expires: expiresAccessToken,
-    });
-
-    response.cookie('Refresh', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      expires: expiresAccessToken,
-    });
-
+    // Return tokens in response body for Bearer token authentication
     return { user, accessToken, refreshToken };
   }
 
   // Normal Login functions
   async login(user: Users, response: Response, userId?: number) {
-
-
     const profile = await this.usersService.findById(userId);
 
     const { accessToken, refreshToken } = await this.generateAndSetTokens(
       profile,
       response,
     );
-
 
     const responseData = {
       user: {
@@ -92,15 +71,11 @@ export class AuthService {
       refreshToken,
     };
 
-
     return responseData;
   }
 
   async validateLocalUser(email: string, password: string) {
-
-
     const user = await this.usersService.findOneByEmail(email);
-
 
     if (!user) {
       console.log('User not found');
