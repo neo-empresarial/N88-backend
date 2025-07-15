@@ -8,14 +8,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers['authorization'];
-
-    console.log('🛡️ [JWT GUARD] Request URL:', request.url);
-    console.log('🛡️ [JWT GUARD] Authorization Header:', authHeader);
-    console.log('🛡️ [JWT GUARD] Cookies:', JSON.stringify(request.cookies));
-    console.log('🛡️ [JWT GUARD] All headers:', JSON.stringify(request.headers));
-
-    const result = super.canActivate(context);
-    console.log('🛡️ [JWT GUARD] Can activate result:', result);
-    return result;
+    this.logger.debug('JWT Guard - Request URL:', request.url);
+    this.logger.debug('JWT Guard - Authorization Header:', authHeader);
+    this.logger.debug('JWT Guard - Cookies:', request.cookies);
+    return super.canActivate(context);
   }
 }

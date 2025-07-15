@@ -32,28 +32,12 @@ export class AuthService {
       expiresAccessToken.getMilliseconds() + expirationMs,
     );
 
-    console.log('🔐 [TOKEN GENERATION] Access token expiration:', {
-      currentTime: new Date().toISOString(),
-      expirationTime: expiresAccessToken.toISOString(),
-      durationMs: expirationMs,
-    });
-
     const tokenPayload: TokenPayload = { userId: user.iduser };
-
-    console.log('🔐 [TOKEN GENERATION] Creating token with payload:', tokenPayload);
-    console.log('🔐 [TOKEN GENERATION] Using secret:', {
-      exists: !!process.env.JWT_ACCESS_TOKEN_SECRET,
-      length: process.env.JWT_ACCESS_TOKEN_SECRET?.length,
-    });
 
     const accessToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      expiresIn: '1h', // 1 hour instead of 10 seconds
+      expiresIn: '1h',
     });
-
-    console.log('🔐 [TOKEN GENERATION] Access token created, length:', accessToken.length);
-    console.log('🔐 [TOKEN GENERATION] Access token expiration set to: 1h');
-
 
     const refreshToken = this.jwtService.sign(tokenPayload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
@@ -63,22 +47,19 @@ export class AuthService {
     await this.usersService.updateUser(user.iduser, {
       refreshToken: await hash(refreshToken, 10),
     });
-  
+
     // Return tokens in response body for Bearer token authentication
     return { user, accessToken, refreshToken };
   }
 
   // Normal Login functions
   async login(user: Users, response: Response, userId?: number) {
-
-
     const profile = await this.usersService.findById(userId);
 
     const { accessToken, refreshToken } = await this.generateAndSetTokens(
       profile,
       response,
     );
-
 
     const responseData = {
       user: {
@@ -90,15 +71,11 @@ export class AuthService {
       refreshToken,
     };
 
-
     return responseData;
   }
 
   async validateLocalUser(email: string, password: string) {
-
-
     const user = await this.usersService.findOneByEmail(email);
-
 
     if (!user) {
       console.log('User not found');

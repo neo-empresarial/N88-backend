@@ -97,31 +97,9 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('test')
   async testJwt(@Request() req) {
-    console.log('🧪 [JWT TEST] Endpoint called successfully');
-    console.log('🧪 [JWT TEST] User:', req.user);
     return {
       message: 'JWT is working!',
       user: req.user,
-      timestamp: new Date().toISOString(),
-    };
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('debug-jwt')
-  async debugJwt(@Request() req) {
-    console.log('🔍 [JWT DEBUG] Endpoint called');
-    console.log('🔍 [JWT DEBUG] Full request:', {
-      url: req.url,
-      method: req.method,
-      headers: req.headers,
-      cookies: req.cookies,
-      user: req.user,
-    });
-    return {
-      message: 'JWT debug info',
-      user: req.user,
-      headers: req.headers,
-      cookies: req.cookies,
       timestamp: new Date().toISOString(),
     };
   }
