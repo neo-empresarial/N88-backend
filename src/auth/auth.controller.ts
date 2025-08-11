@@ -16,6 +16,7 @@ import { AuthService } from './auth.service';
 import { JwtRefreshGuard } from './guards/jwt-refresh-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { CreateUsersDto } from 'src/users/dto/create-users.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -69,5 +70,15 @@ export class AuthController {
     res.redirect(
       `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('test')
+  async testJwt(@Request() req) {
+    return {
+      message: 'JWT is working!',
+      user: req.user,
+      timestamp: new Date().toISOString(),
+    };
   }
 }

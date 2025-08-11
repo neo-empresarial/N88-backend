@@ -16,7 +16,12 @@ import { GoogleStrategy } from './strategies/google.strategy';
   imports: [
     UsersModule,
     PassportModule,
-    JwtModule,
+    JwtModule.register({
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      signOptions: {
+        expiresIn: '1h', // 1 hour instead of 10 seconds
+      },
+    }),
     ConfigModule.forFeature(googleOauthConfig),
   ],
   controllers: [AuthController],
