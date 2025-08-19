@@ -35,45 +35,29 @@ export class AuthController {
     return this.authService.refreshTokens(refreshTokenDto.refreshToken);
   }
 
-  // @Post('login')
-  // @UseGuards(LocalAuthGuard)
-  // async login(
-  //   @CurrentUser() user: Users,
-  //   @Request() req,
-  //   @Res({ passthrough: true }) response: Response,
-  // ) {
-  //   const result = await this.authService.login(user, response, user.iduser);
-
-  //   return result;
-  // }
-
-  @Get('google')
   @UseGuards(GoogleAuthGuard)
-  async loginWithGoogle() {}
+  @Get('google/login')
+  googleLogin() {}
 
-  // @UseGuards(GoogleAuthGuard)
-  // @Get('google/login')
-  // googleLogin() {}
-
-  // @UseGuards(GoogleAuthGuard)
-  // @Get('google/callback')
-  // async googleCallback(@Req() req, @Res() res) {
-  //   const { iduser, name, email } = req.user;
-  //   const result = await this.authService.login(req.user, req.user.iduser);
-  //   const expiresAccessToken = new Date();
-  //   expiresAccessToken.setMilliseconds(
-  //     expiresAccessToken.getTime() +
-  //       parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
-  //   );
-  //   res.cookie('Authentication', result.accessToken, {
-  //     httpOnly: true,
-  //     secure: process.env.NODE_ENV === 'production',
-  //     expires: expiresAccessToken,
-  //   });
-  //   res.redirect(
-  //     `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
-  //   );
-  // }
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/callback')
+  async googleCallback(@Req() req, @Res() res) {
+    const { iduser, name, email } = req.user;
+    const result = await this.authService.login(req.user, res);
+    const expiresAccessToken = new Date();
+    expiresAccessToken.setMilliseconds(
+      expiresAccessToken.getTime() +
+        parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
+    );
+    res.cookie('Authentication', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      expires: expiresAccessToken,
+    });
+    res.redirect(
+      `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
+    );
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('test')
