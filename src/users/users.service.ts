@@ -6,6 +6,8 @@ import { CreateUsersDto } from './dto/create-users.dto';
 
 import { hash } from 'bcryptjs';
 import { UpdateUsersDto } from './dto/update-users.dto';
+import { MoreThanOrEqual } from 'typeorm';
+import { RefreshToken } from 'src/auth/entities/refresh-token.entity';
 
 @Injectable()
 export class UsersService {
@@ -23,20 +25,9 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string): Promise<Users> {
-
-
     const result = await this.usersRepository.findOne({
       where: { email: email },
-      select: [
-        'iduser',
-        'name',
-        'email',
-        'password',
-        'course',
-        'authType',
-        'refreshToken',
-        'googleAccessToken',
-      ],
+      select: ['iduser', 'name', 'email', 'password', 'course'],
     });
     return result;
   }
@@ -60,7 +51,7 @@ export class UsersService {
     newUsers.email = CreateUsersDto.email;
 
     if (CreateUsersDto.password) {
-      newUsers.password = await hash(CreateUsersDto.password, 10);
+      newUsers.password = CreateUsersDto.password;
     }
 
     newUsers.course = CreateUsersDto.course;
@@ -105,8 +96,8 @@ export class UsersService {
     newUser.name = googlePayload.name;
     newUser.email = googlePayload.email;
     newUser.course = 'N/A';
-    newUser.googleAccessToken = googlePayload.access_token;
-    newUser.authType = 'google';
+    // newUser.googleAccessToken = googlePayload.access_token;
+    // newUser.authType = 'google';
 
     return this.usersRepository.save(newUser);
   }
