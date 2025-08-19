@@ -11,16 +11,17 @@ import { GoogleAuthService } from './google-auth.service';
 import { ConfigModule } from '@nestjs/config';
 import googleOauthConfig from 'src/config/google-oauth.config';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RefreshToken } from './entities/refresh-token.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([RefreshToken]),
     UsersModule,
     PassportModule,
     JwtModule.register({
+      global: true,
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      signOptions: {
-        expiresIn: '1h', // 1 hour instead of 10 seconds
-      },
     }),
     ConfigModule.forFeature(googleOauthConfig),
   ],

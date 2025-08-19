@@ -17,17 +17,4 @@ export class CreateUsersDto {
   @IsNotEmpty()
   @IsString()
   course: string;
-
-  @IsOptional()
-  @IsString()
-  @IsOptional()
-  refreshToken: string;
-
-  @IsOptional()
-  @IsString()
-  @IsOptional()
-  googleAccessToken: string;
-
-  @IsOptional()
-  avatarUrl: string;
 }

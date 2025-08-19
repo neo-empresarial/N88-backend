@@ -29,11 +29,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     const user = await this.authService.validateGoogleUser({
       email: profile.emails[0].value,
       name: profile.name.givenName,
-      avatarUrl: profile.photos[0].value,
+      // avatarUrl: profile.photos[0].value,
       password: '',
       course: '',
-      refreshToken: '',
-      googleAccessToken: accessToken,
+      // refreshToken: '',
+      // googleAccessToken: accessToken,
     });
     done(null, { ...user, email: profile.emails[0].value });
   }
