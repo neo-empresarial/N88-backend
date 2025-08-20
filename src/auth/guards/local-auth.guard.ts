@@ -18,7 +18,7 @@ export class JwtAuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request: Request = context.switchToHttp().getRequest();
-    const token = this.extractToken(request); // Chamando o novo método
+    const token = this.extractToken(request); // Calling the new method
     if (!token) {
       // O token não foi encontrado, então o usuário não está autorizado
       Logger.warn('Authentication token not found in request.');
