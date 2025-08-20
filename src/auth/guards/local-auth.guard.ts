@@ -21,7 +21,7 @@ export class JwtAuthGuard implements CanActivate {
     const token = this.extractToken(request); // Chamando o novo método
     if (!token) {
       // O token não foi encontrado, então o usuário não está autorizado
-      Logger.warn('Token de autenticação não encontrado na requisição.');
+      Logger.warn('Authentication token not found in request.');
       throw new UnauthorizedException('Token Inválido!');
     }
 
