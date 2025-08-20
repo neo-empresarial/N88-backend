@@ -15,7 +15,7 @@ import { GroupsService } from './groups.service';
 import { CreateGroupDto } from './dtos/create-group.dto';
 import { UpdateGroupDto } from './dtos/update-group.dto';
 import { AddMemberDto } from './dtos/add-member.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
 
 @Controller('groups')
 @UseGuards(JwtAuthGuard)
@@ -24,25 +24,22 @@ export class GroupsController {
 
   @Post()
   create(@Body() createGroupDto: CreateGroupDto, @Request() req) {
-    console.log('Creating group with data:', createGroupDto);
-    console.log('User from request:', req.user);
-    return this.groupsService.create(createGroupDto, req.user.iduser);
+    return this.groupsService.create(createGroupDto, req.userId);
   }
 
   @Get()
   findAll(@Request() req) {
-    console.log('Finding all groups for user:', req.user.iduser);
-    return this.groupsService.findAll(req.user.iduser);
+    return this.groupsService.findAll(req.userId);
   }
 
   @Get('search-users')
   searchUsers(@Query('q') query: string, @Request() req) {
-    return this.groupsService.searchUsers(query, req.user.iduser);
+    return this.groupsService.searchUsers(query, req.userId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req) {
-    return this.groupsService.findOne(id, req.user.iduser);
+    return this.groupsService.findOne(id, req.userId);
   }
 
   @Patch(':id')
@@ -51,7 +48,7 @@ export class GroupsController {
     @Body() updateGroupDto: UpdateGroupDto,
     @Request() req,
   ) {
-    return this.groupsService.update(id, updateGroupDto, req.user.iduser);
+    return this.groupsService.update(id, updateGroupDto, req.userId);
   }
 
   @Post(':id/members/:userId')
@@ -60,7 +57,7 @@ export class GroupsController {
     @Param('userId') userId: string,
     @Request() req,
   ) {
-    return this.groupsService.addMember(id, userId, req.user.iduser);
+    return this.groupsService.addMember(id, userId, req.userId);
   }
 
   @Delete(':id/members/:userId')
@@ -69,20 +66,16 @@ export class GroupsController {
     @Param('userId') userId: string,
     @Request() req,
   ) {
-    return this.groupsService.removeMember(id, userId, req.user.iduser);
+    return this.groupsService.removeMember(id, userId, req.userId);
   }
 
   @Post(':id/leave')
   leaveGroup(@Param('id') id: string, @Request() req) {
-    return this.groupsService.removeMember(
-      id,
-      req.user.iduser,
-      req.user.iduser,
-    );
+    return this.groupsService.removeMember(id, req.userId, req.userId);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string, @Request() req) {
-    return this.groupsService.remove(id, req.user.iduser);
+    return this.groupsService.remove(id, req.userId);
   }
 }
