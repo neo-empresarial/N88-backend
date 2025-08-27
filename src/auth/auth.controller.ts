@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAuthGuard } from './guards/local-auth.guard';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-tokens.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -32,8 +32,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Req() req, @Body() credentials: LoginDto) {
-    console.log(await this.authService.login(credentials));
-    return { statusCode: 201, user: await this.authService.login(credentials) };
+    return { user: await this.authService.login(credentials) };
   }
 
   @Post('refresh')

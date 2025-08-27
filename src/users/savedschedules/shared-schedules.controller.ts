@@ -14,8 +14,7 @@ import {
   ShareScheduleDto,
   AcceptSharedScheduleDto,
 } from './dto/share-schedule.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-
+import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
 @Controller('shared-schedules')
 @UseGuards(JwtAuthGuard)
 export class SharedSchedulesController {
