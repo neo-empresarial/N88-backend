@@ -8,7 +8,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
