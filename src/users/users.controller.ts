@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Put, Param, ParseIntPipe, Post, UseGuards, ValidationPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUsersDto } from './dto/create-users.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -24,6 +24,15 @@ export class UsersController {
     return this.usersService.findById(id);
   }
 
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: any) {
+    console.log('Controller - Received ID:', id);
+    console.log('Controller - Update data:', updateUserDto);
+    const result = await this.usersService.updateUser(id, updateUserDto);
+    console.log('Controller - Service result:', result);
+    return result;
+  }
 
   @Post()
   async create(@Body(ValidationPipe) createUsersDto: CreateUsersDto) {

@@ -24,7 +24,6 @@ export class UsersService {
 
   async findOneByEmail(email: string): Promise<Users> {
 
-
     const result = await this.usersRepository.findOne({
       where: { email: email },
       select: [
@@ -81,15 +80,21 @@ export class UsersService {
   }
 
   async updateUser(id: number, updateUserDto: UpdateUsersDto): Promise<Users> {
+    console.log('Service - Finding user with ID:', id);
     let user = await this.findById(id);
-
+    console.log('Service - Found user before update:', user.name, user.email);
+  
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-
+    console.log('Service - Update data received:', updateUserDto);
     user = { ...user, ...updateUserDto };
-
-    return this.usersRepository.save(user);
+    console.log('Service - User after merge:', user.name, user.email);
+    const savedUser = await this.usersRepository.save(user);
+    console.log('Service - User after save:', savedUser.name, savedUser.email);
+    const verifyUser = await this.usersRepository.findOne({ where: { iduser: id } });
+    console.log('Service - Verification query result:', verifyUser?.name, verifyUser?.email);
+    return savedUser;
   }
 
   async findOrCreateGoogleUser(googlePayload: any) {
