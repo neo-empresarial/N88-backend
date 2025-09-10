@@ -8,7 +8,7 @@
 import { Users } from '../user.entity';
 import { SavedScheduleItems } from './savedscheduleitems.entity';
 import { Exclude } from 'class-transformer';
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, MaxLength } from 'class-validator';
 
 @Entity()
 export class SavedSchedules {
