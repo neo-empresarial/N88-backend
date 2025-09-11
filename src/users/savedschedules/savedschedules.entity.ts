@@ -14,10 +14,10 @@ export class SavedSchedules {
   @PrimaryGeneratedColumn()
   idsavedschedule: number;
 
-  @Column('varchar', { length: 45 })
+  @Column({ nullable: true, default: '' })
   title: string;
 
-  @Column('text')
+  @Column({ nullable: true, default: '' })
   description: string;
 
   @ManyToOne(() => Users, (user) => user.savedschedules, {
