@@ -15,7 +15,7 @@ export class SavedSchedules {
   @PrimaryGeneratedColumn()
   idsavedschedule: number;
 
-  @Column('varchar', { length: 50, nullable: false })
+  @Column('varchar', { length: 50 })
   @IsNotEmpty({ message: 'O título não pode ser vazio.' })
   @MaxLength(50, { message: 'O título deve ter no máximo 50 caracteres.' })
   title: string;
