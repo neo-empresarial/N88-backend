@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, Like } from 'typeorm';
 import { Courses } from './courses.entity';
+import { ICourse } from './course.interface';
 
 @Injectable()
 export class CoursesService {
@@ -10,11 +11,12 @@ export class CoursesService {
         private readonly coursesRepository: Repository<Courses>,
     ) {}
 
-    async findAll(): Promise<Courses[]> {
-        return this.coursesRepository.find();
+    async findAll(): Promise<ICourse[]> {
+        const courses = await this.coursesRepository.find();
+        return courses;
     }
 
-    async findOne(id: number): Promise<Courses> {
+    async findOne(id: number): Promise<ICourse> {
         const course = await this.coursesRepository.findOne({
             where: { idcourse: id },
         });
@@ -26,7 +28,7 @@ export class CoursesService {
         return course;
     }
 
-    async findByName(name: string): Promise<Courses[]> {
+    async findByName(name: string): Promise<ICourse[]> {
         return this.coursesRepository.find({
             where: {
                 course: Like(`%${name}%`),

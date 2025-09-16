@@ -5,6 +5,6 @@ export class Courses {
   @PrimaryGeneratedColumn({})
   idcourse: number;
 
-  @Column("varchar", { length: 100, unique: true })
+  @Column("varchar", { length: 100, nullable: false }) 
   course: string;
 }
