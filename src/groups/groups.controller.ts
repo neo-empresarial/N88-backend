@@ -14,7 +14,6 @@ import {
 import { GroupsService } from './groups.service';
 import { CreateGroupDto } from './dtos/create-group.dto';
 import { UpdateGroupDto } from './dtos/update-group.dto';
-import { AddMemberDto } from './dtos/add-member.dto';
 import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
 
 @Controller('groups')

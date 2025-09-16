@@ -3,11 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUsersDto } from './dto/create-users.dto';
-
-import { hash } from 'bcryptjs';
 import { UpdateUsersDto } from './dto/update-users.dto';
-import { MoreThanOrEqual } from 'typeorm';
-import { RefreshToken } from 'src/auth/entities/refresh-token.entity';
 
 @Injectable()
 export class UsersService {

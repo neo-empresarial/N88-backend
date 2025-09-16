@@ -1,19 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Req,
-  Res,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Req, Res, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { JwtAuthGuard } from './guards/local-auth.guard';
 import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-tokens.dto';
 import { RegisterDto } from './dto/register.dto';
+import { Response } from 'express';
+import { UnauthorizedException } from '@nestjs/common';
+import { Request as ExRequest } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -36,11 +27,32 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refreshTokens(@Req() req, @Body() refreshTokenDto: RefreshTokenDto) {
-    // Exemplo de uso: logar a URL completa
-    console.log('Refresh token request to:', req.originalUrl);
+  async refreshTokens(
+    @Req() req: ExRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshTokenSend = req.cookies['refresh_token'];
 
-    return this.authService.refreshTokens(refreshTokenDto.refreshToken);
+    if (!refreshTokenSend) {
+      throw new UnauthorizedException('Refresh token não encontrado');
+    }
+
+    const { accessToken, refreshToken } =
+      await this.authService.refreshTokens(refreshTokenSend);
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    return { message: 'Tokens atualizados com sucesso' };
   }
 
   // @UseGuards(GoogleAuthGuard)
@@ -66,14 +78,4 @@ export class AuthController {
   //     `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
   //   );
   // }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('test')
-  async testJwt(@Request() req) {
-    return {
-      message: 'JWT is working!',
-      user: req.user,
-      timestamp: new Date().toISOString(),
-    };
-  }
 }
