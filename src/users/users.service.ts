@@ -23,7 +23,6 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string): Promise<Users> {
-
     const result = await this.usersRepository.findOne({
       where: { email: email },
       select: [
@@ -83,7 +82,6 @@ export class UsersService {
     console.log('Service - Finding user with ID:', id);
     let user = await this.findById(id);
     console.log('Service - Found user before update:', user.name, user.email);
-  
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
@@ -92,8 +90,14 @@ export class UsersService {
     console.log('Service - User after merge:', user.name, user.email);
     const savedUser = await this.usersRepository.save(user);
     console.log('Service - User after save:', savedUser.name, savedUser.email);
-    const verifyUser = await this.usersRepository.findOne({ where: { iduser: id } });
-    console.log('Service - Verification query result:', verifyUser?.name, verifyUser?.email);
+    const verifyUser = await this.usersRepository.findOne({
+      where: { iduser: id },
+    });
+    console.log(
+      'Service - Verification query result:',
+      verifyUser?.name,
+      verifyUser?.email,
+    );
     return savedUser;
   }
 
@@ -132,5 +136,16 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async searchUsers(query: string, currentUserId: number): Promise<Users[]> {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.iduser != :currentUserId', { currentUserId })
+      .andWhere('(user.name ILIKE :query OR user.email ILIKE :query)', {
+        query: `%${query}%`,
+      })
+      .take(10)
+      .getMany();
   }
 }
