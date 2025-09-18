@@ -14,11 +14,13 @@ import { JwtAuthGuard } from './guards/local-auth.guard';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-tokens.dto';
 import { RegisterDto } from './dto/register.dto';
+import { Public } from "../decorators/public.decorator";
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
+  @Public()
   @Post('register')
   async register(@Req() req, @Body() registerData: RegisterDto) {
     // Exemplo de uso: logar o IP do cliente
