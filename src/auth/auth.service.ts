@@ -40,6 +40,7 @@ export class AuthService {
     return this.usersService.create({
       name: registerData.name,
       email: registerData.email,
+      provider: 'local',
       password: hashedPassword,
       course: registerData.course,
     });
@@ -63,7 +64,22 @@ export class AuthService {
       userId: user.iduser,
       name: user.name,
       email: user.email,
-      password: user.password,
+      course: user.course,
+    };
+  }
+
+  async loginGoogle( email: string) {
+    const user = await this.usersService.findOneByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('Wrong credentials');
+    }
+
+    const tokens = await this.generateUserTokens(user.iduser);
+    return {
+      ...tokens,
+      userId: user.iduser,
+      name: user.name,
+      email: user.email,
       course: user.course,
     };
   }
@@ -129,6 +145,11 @@ export class AuthService {
 
   async validateLocalUser(email: string, password: string) {
     const user = await this.usersService.findOneByEmail(email);
+
+    if (password === '') {
+      console.log('Password cannot be empty');
+      throw new BadRequestException('Password cannot be empty');
+    }
 
     if (!user) {
       console.log('User not found');

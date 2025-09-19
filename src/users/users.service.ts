@@ -45,6 +45,7 @@ export class UsersService {
     const newUsers = new Users();
     newUsers.name = CreateUsersDto.name;
     newUsers.email = CreateUsersDto.email;
+    newUsers.provider = CreateUsersDto.provider;
 
     if (CreateUsersDto.password) {
       newUsers.password = CreateUsersDto.password;

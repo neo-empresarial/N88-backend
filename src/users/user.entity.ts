@@ -12,6 +12,8 @@ export class Users {
   @Column('varchar', { length: 55, unique: true })
   email: string;
 
+  provider: string;
+
   @Column('varchar', { length: 255, nullable: true }) // Nullable for Google users
   password: string;
 
