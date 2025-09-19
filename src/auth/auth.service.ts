@@ -64,21 +64,20 @@ export class AuthService {
       userId: user.iduser,
       name: user.name,
       email: user.email,
+      provider: user.provider,
       course: user.course,
     };
   }
 
-  async loginGoogle( email: string) {
+  async loginGoogle(email: string) {
     const user = await this.usersService.findOneByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException('Wrong credentials');
-    }
 
     const tokens = await this.generateUserTokens(user.iduser);
     return {
       ...tokens,
       userId: user.iduser,
       name: user.name,
+      provider: user.provider,
       email: user.email,
       course: user.course,
     };

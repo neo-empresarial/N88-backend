@@ -12,6 +12,7 @@ export class Users {
   @Column('varchar', { length: 55, unique: true })
   email: string;
 
+  @Column('varchar', { length: 20 })
   provider: string;
 
   @Column('varchar', { length: 255, nullable: true }) // Nullable for Google users

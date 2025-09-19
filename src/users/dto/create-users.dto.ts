@@ -10,7 +10,7 @@ export class CreateUsersDto {
   email: string;
 
   @IsNotEmpty()
-  @IsEmail()
+  @IsString()
   provider: string;
 
   @IsNotEmpty()

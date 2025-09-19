@@ -66,18 +66,9 @@ export class AuthController {
   async googleCallback(@Req() req, @Res() res) {
     const { iduser, name, email } = req.user;
     const result = await this.authService.loginGoogle(email);
-    const expiresAccessToken = new Date();
-    expiresAccessToken.setMilliseconds(
-      expiresAccessToken.getTime() +
-        parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
-    );
-    res.cookie('Authentication', result.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      expires: expiresAccessToken,
-    });
+    console.log(result)
     res.redirect(
-      `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
+      `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?userId=${result.userId}&name=${encodeURIComponent(result.name)}&email=${encodeURIComponent(result.email)}&provider=${encodeURIComponent(result.provider)}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
     );
   }
 }
