@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateSavedScheduleItemDto {
   @IsNotEmpty()
@@ -18,9 +18,9 @@ export class CreateSavedScheduleDto {
   @IsString()
   title: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  description: string;
+  description?: string;
 
   @IsArray()
   @IsNotEmpty()

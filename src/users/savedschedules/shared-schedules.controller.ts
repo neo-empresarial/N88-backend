@@ -14,8 +14,7 @@ import {
   ShareScheduleDto,
   AcceptSharedScheduleDto,
 } from './dto/share-schedule.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-
+import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
 @Controller('shared-schedules')
 @UseGuards(JwtAuthGuard)
 export class SharedSchedulesController {
@@ -29,7 +28,7 @@ export class SharedSchedulesController {
     @Body() shareScheduleDto: ShareScheduleDto,
   ) {
     return this.sharedSchedulesService.shareSchedule(
-      req.user.iduser,
+      req.userId,
       shareScheduleDto,
     );
   }
@@ -37,14 +36,14 @@ export class SharedSchedulesController {
   @Get('received')
   async getSharedSchedulesForUser(@Request() req) {
     return this.sharedSchedulesService.getSharedSchedulesForUser(
-      req.user.iduser,
+      req.userId,
     );
   }
 
   @Get('sent')
   async getSharedSchedulesByUser(@Request() req) {
     return this.sharedSchedulesService.getSharedSchedulesByUser(
-      req.user.iduser,
+      req.userId,
     );
   }
 
@@ -54,7 +53,7 @@ export class SharedSchedulesController {
     @Body() acceptDto: AcceptSharedScheduleDto,
   ) {
     return this.sharedSchedulesService.acceptSharedSchedule(
-      req.user.iduser,
+      req.userId,
       acceptDto,
     );
   }
@@ -65,7 +64,7 @@ export class SharedSchedulesController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.sharedSchedulesService.declineSharedSchedule(
-      req.user.iduser,
+      req.userId,
       id,
     );
   }

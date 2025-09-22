@@ -1,74 +1,61 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Req,
-  Request,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
-import { LocalAuthGuard } from './guards/local-auth.guard';
-import { CurrentUser } from './current-user.decorator';
-import { Users } from 'src/users/user.entity';
-import { Response } from 'express';
+import { Body, Controller, Req, Res, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { JwtRefreshGuard } from './guards/jwt-refresh-auth.guard';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import { Response } from 'express';
+import { UnauthorizedException } from '@nestjs/common';
+import { Request as ExRequest } from 'express';
+import { UseGuards, Get } from '@nestjs/common';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { CreateUsersDto } from 'src/users/dto/create-users.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() CreateUsersDto: CreateUsersDto) {
-    return this.authService.register(CreateUsersDto);
+  async register(@Req() req, @Body() registerData: RegisterDto) {
+    // Exemplo de uso: logar o IP do cliente
+    console.log('Register request from IP:', req.ip);
+
+    return {
+      statusCode: 201,
+      data: await this.authService.register(registerData),
+    };
   }
 
   @Post('login')
-  @UseGuards(LocalAuthGuard)
-  async login(
-    @CurrentUser() user: Users,
-    @Request() req,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const result = await this.authService.login(user, response, user.iduser);
-
-    return result;
+  async login(@Req() req, @Body() credentials: LoginDto) {
+    return { user: await this.authService.login(credentials) };
   }
 
   @Post('refresh')
-  @UseGuards(JwtRefreshGuard)
-  async refresh(
-    @CurrentUser() user: Users,
-    @Res({ passthrough: true }) response: Response,
+  async refreshTokens(
+    @Req() req: ExRequest,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    await this.authService.login(user, response);
+    const refreshTokenSend = req.cookies['refresh_token'];
+
+    if (!refreshTokenSend) {
+      throw new UnauthorizedException('Refresh token não encontrado');
+    }
+
+    const { accessToken, refreshToken } =
+      await this.authService.refreshTokens(refreshTokenSend);
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    return { message: 'Tokens atualizados com sucesso' };
   }
-
-  // @Post('login/google')
-  // @UseGuards(GoogleAuthGuard)
-  // async loginWithGoogle(
-  //   @Body('googleAccessToken') googleAccessToken: string,
-  //   @Res() response: Response,
-  // ) {
-  //   return this.authService.loginWithGoogle(googleAccessToken, response);
-  // }
-
-  @Get('google')
-  @UseGuards(GoogleAuthGuard)
-  async loginWithGoogle() {}
-
-  // @Get('google/callback')
-  // @UseGuards(GoogleAuthGuard)
-  // async googleCallback(
-  //   @CurrentUser() user: Users,
-  //   @Res({ passthrough: true }) response: Response,
-  // ) {
-  //   await this.authService.login(user, response);
-  // }
 
   @UseGuards(GoogleAuthGuard)
   @Get('google/login')
@@ -77,30 +64,6 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
-    const { iduser, name, email } = req.user;
-    const result = await this.authService.login(req.user, req.user.iduser);
-    const expiresAccessToken = new Date();
-    expiresAccessToken.setMilliseconds(
-      expiresAccessToken.getTime() +
-        parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
-    );
-    res.cookie('Authentication', result.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      expires: expiresAccessToken,
-    });
-    res.redirect(
-      `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('test')
-  async testJwt(@Request() req) {
-    return {
-      message: 'JWT is working!',
-      user: req.user,
-      timestamp: new Date().toISOString(),
-    };
+    res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}`);
   }
 }

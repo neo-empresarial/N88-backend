@@ -11,23 +11,14 @@ export class CreateUsersDto {
 
   @IsNotEmpty()
   @IsString()
+  provider: string;
+
+  @IsNotEmpty()
+  @IsString()
   password: string;
 
   @IsOptional()
   @IsNotEmpty()
   @IsString()
   course: string;
-
-  @IsOptional()
-  @IsString()
-  @IsOptional()
-  refreshToken: string;
-
-  @IsOptional()
-  @IsString()
-  @IsOptional()
-  googleAccessToken: string;
-
-  @IsOptional()
-  avatarUrl: string;
 }

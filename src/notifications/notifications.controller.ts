@@ -8,7 +8,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
@@ -21,7 +21,7 @@ export class NotificationsController {
     @Request() req,
   ) {
     return this.notificationsService.createGroupInvitation(
-      req.user.iduser,
+      req.userId,
       body.recipientId,
       body.groupId,
     );
@@ -29,7 +29,8 @@ export class NotificationsController {
 
   @Get()
   async getUserNotifications(@Request() req) {
-    return this.notificationsService.getUserNotifications(req.user.iduser);
+    console.log('Fetching notifications for user ID:', req.userId);
+    return this.notificationsService.getUserNotifications(req.userId);
   }
 
   @Post(':id/respond')
@@ -40,7 +41,7 @@ export class NotificationsController {
   ) {
     return this.notificationsService.respondToInvitation(
       Number(id),
-      req.user.iduser,
+      req.userId,
       body.accept,
     );
   }

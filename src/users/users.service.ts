@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUsersDto } from './dto/create-users.dto';
-
-import { hash } from 'bcryptjs';
 import { UpdateUsersDto } from './dto/update-users.dto';
 
 @Injectable()
@@ -23,20 +21,9 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string): Promise<Users> {
-
-
     const result = await this.usersRepository.findOne({
       where: { email: email },
-      select: [
-        'iduser',
-        'name',
-        'email',
-        'password',
-        'course',
-        'authType',
-        'refreshToken',
-        'googleAccessToken',
-      ],
+      select: ['iduser', 'name', 'email', 'password', 'provider', 'course'],
     });
     return result;
   }
@@ -58,9 +45,10 @@ export class UsersService {
     const newUsers = new Users();
     newUsers.name = CreateUsersDto.name;
     newUsers.email = CreateUsersDto.email;
+    newUsers.provider = CreateUsersDto.provider;
 
     if (CreateUsersDto.password) {
-      newUsers.password = await hash(CreateUsersDto.password, 10);
+      newUsers.password = CreateUsersDto.password;
     }
 
     newUsers.course = CreateUsersDto.course;
@@ -105,8 +93,8 @@ export class UsersService {
     newUser.name = googlePayload.name;
     newUser.email = googlePayload.email;
     newUser.course = 'N/A';
-    newUser.googleAccessToken = googlePayload.access_token;
-    newUser.authType = 'google';
+    // newUser.googleAccessToken = googlePayload.access_token;
+    // newUser.authType = 'google';
 
     return this.usersRepository.save(newUser);
   }
