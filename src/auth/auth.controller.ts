@@ -5,6 +5,8 @@ import { RegisterDto } from './dto/register.dto';
 import { Response } from 'express';
 import { UnauthorizedException } from '@nestjs/common';
 import { Request as ExRequest } from 'express';
+import { UseGuards, Get } from '@nestjs/common';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -55,27 +57,13 @@ export class AuthController {
     return { message: 'Tokens atualizados com sucesso' };
   }
 
-  // @UseGuards(GoogleAuthGuard)
-  // @Get('google/login')
-  // googleLogin() {}
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/login')
+  googleLogin() {}
 
-  // @UseGuards(GoogleAuthGuard)
-  // @Get('google/callback')
-  // async googleCallback(@Req() req, @Res() res) {
-  //   const { iduser, name, email } = req.user;
-  //   const result = await this.authService.login(req.user);
-  //   const expiresAccessToken = new Date();
-  //   expiresAccessToken.setMilliseconds(
-  //     expiresAccessToken.getTime() +
-  //       parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_MS),
-  //   );
-  //   res.cookie('Authentication', result.accessToken, {
-  //     httpOnly: true,
-  //     secure: process.env.NODE_ENV === 'production',
-  //     expires: expiresAccessToken,
-  //   });
-  //   res.redirect(
-  //     `${process.env.NEXT_PUBLIC_FRONTEND_URL}google-auth-callback?id=${iduser}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}`,
-  //   );
-  // }
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/callback')
+  async googleCallback(@Req() req, @Res() res) {
+    res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}`);
+  }
 }

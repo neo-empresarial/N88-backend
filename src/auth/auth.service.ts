@@ -16,6 +16,9 @@ import { RegisterDto } from './dto/register.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SignJWT } from 'jose';
+import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 dotenvConfig({ path: '.env' });
 
 @Injectable()
@@ -26,6 +29,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly googleAuthService: GoogleAuthService,
+    private readonly configService: ConfigService,
   ) {}
 
   async register(@Body() registerData: RegisterDto) {
@@ -40,6 +44,7 @@ export class AuthService {
     return this.usersService.create({
       name: registerData.name,
       email: registerData.email,
+      provider: 'local',
       password: hashedPassword,
       course: registerData.course,
     });
@@ -63,9 +68,64 @@ export class AuthService {
       userId: user.iduser,
       name: user.name,
       email: user.email,
-      password: user.password,
+      provider: user.provider,
       course: user.course,
     };
+  }
+
+  async loginGoogle(email: string, res: Response) {
+    const user = await this.usersService.findOneByEmail(email);
+
+    const tokens = await this.generateUserTokens(user.iduser);
+
+    const expiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    const sessionPayload = {
+      user: {
+        userId: user.iduser,
+        name: user.name,
+        email: user.email,
+        provider: user.provider,
+      },
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
+
+    const secretKey = process.env.SESSION_SECRET_KEY!;
+    if (!secretKey) {
+      throw new Error('SESSION_SECRET_KEY não configurado');
+    }
+    const encodedKey = new TextEncoder().encode(secretKey);
+
+    const session = await new SignJWT(sessionPayload)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime(expiredAt)
+      .sign(encodedKey);
+
+    res.cookie('session', session, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      expires: expiredAt,
+      path: '/',
+    });
+
+    res.cookie('access_token', sessionPayload.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      expires: expiredAt,
+      path: '/',
+    });
+
+    res.cookie('refresh_token', sessionPayload.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      expires: expiredAt,
+      path: '/',
+    });
   }
 
   async refreshTokens(refreshToken: string) {
@@ -95,7 +155,7 @@ export class AuthService {
       { userId },
       {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-        expiresIn: '3d',
+        expiresIn: '7d',
       },
     );
 
@@ -129,6 +189,11 @@ export class AuthService {
 
   async validateLocalUser(email: string, password: string) {
     const user = await this.usersService.findOneByEmail(email);
+
+    if (password === '') {
+      console.log('Password cannot be empty');
+      throw new BadRequestException('Password cannot be empty');
+    }
 
     if (!user) {
       console.log('User not found');

@@ -23,7 +23,7 @@ export class UsersService {
   async findOneByEmail(email: string): Promise<Users> {
     const result = await this.usersRepository.findOne({
       where: { email: email },
-      select: ['iduser', 'name', 'email', 'password', 'course'],
+      select: ['iduser', 'name', 'email', 'password', 'provider', 'course'],
     });
     return result;
   }
@@ -45,6 +45,7 @@ export class UsersService {
     const newUsers = new Users();
     newUsers.name = CreateUsersDto.name;
     newUsers.email = CreateUsersDto.email;
+    newUsers.provider = CreateUsersDto.provider;
 
     if (CreateUsersDto.password) {
       newUsers.password = CreateUsersDto.password;

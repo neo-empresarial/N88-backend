@@ -11,6 +11,10 @@ export class CreateUsersDto {
 
   @IsNotEmpty()
   @IsString()
+  provider: string;
+
+  @IsNotEmpty()
+  @IsString()
   password: string;
 
   @IsOptional()

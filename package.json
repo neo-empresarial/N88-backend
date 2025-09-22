@@ -41,6 +41,7 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.5",
     "google-auth-library": "^9.15.0",
+    "jose": "^6.1.0",
     "jsonwebtoken": "^9.0.2",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
