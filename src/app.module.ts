@@ -9,6 +9,9 @@ import { AuthModule } from './auth/auth.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { GroupsModule } from './groups/groups.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { RefreshToken } from './auth/entities/refresh-token.entity';
+import { CoursesModule } from './courses/courses.module';
+import { Courses } from './courses/courses.entity';
 
 @Module({
   imports: [
@@ -19,6 +22,8 @@ import { NotificationsModule } from './notifications/notifications.module';
     AuthModule,
     GroupsModule,
     NotificationsModule,
+    TypeOrmModule.forFeature([RefreshToken]),
+    CoursesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

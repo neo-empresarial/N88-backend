@@ -8,13 +8,16 @@
 import { Users } from '../user.entity';
 import { SavedScheduleItems } from './savedscheduleitems.entity';
 import { Exclude } from 'class-transformer';
+import { IsNotEmpty, MaxLength } from 'class-validator';
 
 @Entity()
 export class SavedSchedules {
   @PrimaryGeneratedColumn()
   idsavedschedule: number;
 
-  @Column({ nullable: true, default: '' })
+  @Column('varchar', { length: 50 })
+  @IsNotEmpty({ message: 'O título não pode ser vazio.' })
+  @MaxLength(50, { message: 'O título deve ter no máximo 50 caracteres.' })
   title: string;
 
   @Column({ nullable: true, default: '' })

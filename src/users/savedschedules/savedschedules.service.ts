@@ -4,11 +4,7 @@ import { Repository } from 'typeorm';
 import { SavedSchedules } from './savedschedules.entity';
 import { SavedScheduleItems } from './savedscheduleitems.entity';
 import { CreateSavedScheduleDto } from './dto/create-savedschedule.dto';
-import {
-  SavedScheduleResponseDto,
-  SavedScheduleItemResponseDto,
-} from './dto/saved-schedule-response.dto';
-import { plainToInstance } from 'class-transformer';
+import { SavedScheduleResponseDto } from './dto/saved-schedule-response.dto';
 
 @Injectable()
 export class SavedSchedulesService {
@@ -90,16 +86,13 @@ export class SavedSchedulesService {
   ): Promise<SavedScheduleResponseDto> {
     const savedSchedule = await this.findOne(id, userId);
 
-    // Update basic info
     savedSchedule.title = updateSavedScheduleDto.title;
     savedSchedule.description = updateSavedScheduleDto.description;
 
-    // Remove existing items
     await this.savedScheduleItemsRepository.delete({
       savedSchedule: { idsavedschedule: id },
     });
 
-    // Create new items
     const savedScheduleItems = updateSavedScheduleDto.items.map((item) => {
       const scheduleItem = new SavedScheduleItems();
       scheduleItem.subjectCode = item.subjectCode;
