@@ -64,6 +64,8 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
+    await this.authService.validateGoogleUser(req.user);
+    await this.authService.loginGoogle(req.user.email, res);
     res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}`);
   }
 }
