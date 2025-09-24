@@ -17,6 +17,8 @@ import { RefreshToken } from './entities/refresh-token.entity';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { CoursesService } from 'src/courses/courses.service';
+import { Courses } from 'src/courses/courses.entity';
 import { Response } from 'express';
 dotenvConfig({ path: '.env' });
 
@@ -89,8 +91,6 @@ export class AuthService {
     const{SignJWT} = await import('jose');
 
     const user = await this.usersService.findOneByEmail(email);
-
-    const { SignJWT } = await import('jose');
 
     const tokens = await this.generateUserTokens(user.iduser);
 
