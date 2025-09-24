@@ -14,13 +14,13 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUsersDto } from './dto/create-users.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-
+import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('/')
+  @UseGuards(JwtAuthGuard)
   async findAll() {
     return this.usersService.findAll();
   }

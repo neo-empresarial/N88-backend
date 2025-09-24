@@ -11,9 +11,8 @@ import {
 } from '@nestjs/common';
 import { SavedSchedulesService } from './savedschedules.service';
 import { CreateSavedScheduleDto } from './dto/create-savedschedule.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
 import { ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
-import { SavedSchedules } from './savedschedules.entity';
 
 @Controller('saved-schedules')
 @UseGuards(JwtAuthGuard)
@@ -27,19 +26,19 @@ export class SavedSchedulesController {
     @Body() createSavedScheduleDto: CreateSavedScheduleDto,
   ) {
     return this.savedSchedulesService.create(
-      req.user.iduser,
+      req.userId,
       createSavedScheduleDto,
     );
   }
 
   @Get()
   findAll(@Request() req) {
-    return this.savedSchedulesService.findAllByUser(req.user.iduser);
+    return this.savedSchedulesService.findAllByUser(req.userId);
   }
 
   @Get(':id')
   findOne(@Request() req, @Param('id') id: string) {
-    return this.savedSchedulesService.findOne(+id, req.user.iduser);
+    return this.savedSchedulesService.findOne(+id, req.userId);
   }
 
   @Patch(':id')
@@ -50,13 +49,13 @@ export class SavedSchedulesController {
   ) {
     return this.savedSchedulesService.update(
       +id,
-      req.user.iduser,
+      req.userId,
       updateSavedScheduleDto,
     );
   }
 
   @Delete(':id')
   remove(@Request() req, @Param('id') id: string) {
-    return this.savedSchedulesService.remove(+id, req.user.iduser);
+    return this.savedSchedulesService.remove(+id, req.userId);
   }
 }
