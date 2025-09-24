@@ -16,6 +16,9 @@ export class Users {
   @Column('varchar', { length: 255, nullable: true })
   password: string;
 
+  @Column('varchar', { length: 20, nullable: true })
+  provider: string;
+
   @ManyToOne(() => Courses)
   @JoinColumn({ name: 'courseId' })
   course: Courses;
