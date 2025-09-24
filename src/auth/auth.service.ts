@@ -16,7 +16,6 @@ import { RegisterDto } from './dto/register.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SignJWT } from 'jose';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 dotenvConfig({ path: '.env' });
@@ -76,6 +75,8 @@ export class AuthService {
   async loginGoogle(email: string, res: Response) {
     const user = await this.usersService.findOneByEmail(email);
 
+    const { SignJWT } = await import('jose');
+
     const tokens = await this.generateUserTokens(user.iduser);
 
     const expiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -97,7 +98,7 @@ export class AuthService {
     }
     const encodedKey = new TextEncoder().encode(secretKey);
 
-    const session = await new SignJWT(sessionPayload)
+    const session = new SignJWT(sessionPayload)
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime(expiredAt)
