@@ -4,12 +4,15 @@ import { Users } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUsersDto } from './dto/create-users.dto';
 import { UpdateUsersDto } from './dto/update-users.dto';
+import { CoursesService } from 'src/courses/courses.service';
+import { Courses } from 'src/courses/courses.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    private readonly coursesService: CoursesService,
   ) {}
 
   async findAll(): Promise<Users[]> {
@@ -50,7 +53,9 @@ export class UsersService {
       newUsers.password = CreateUsersDto.password;
     }
 
-    newUsers.course = CreateUsersDto.course;
+    const course = await this.coursesService.findOne(CreateUsersDto.idcourse)
+
+    newUsers.course = course;
 
     return this.usersRepository.save(newUsers);
   }
@@ -79,6 +84,7 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
+
   async findOrCreateGoogleUser(googlePayload: any) {
     const user = await this.usersRepository.findOne({
       where: { email: googlePayload.email },
@@ -88,10 +94,12 @@ export class UsersService {
       return user;
     }
 
+    const defaultCourse = await this.coursesService.findOneByCourseName('N/A');
+
     const newUser = new Users();
     newUser.name = googlePayload.name;
     newUser.email = googlePayload.email;
-    newUser.course = 'N/A';
+    newUser.course = defaultCourse;
     // newUser.googleAccessToken = googlePayload.access_token;
     // newUser.authType = 'google';
 
@@ -101,13 +109,14 @@ export class UsersService {
   async checkExtraInfo(email: string) {
     const user = await this.usersRepository.findOne({
       where: { email: email },
+      relations: ['course'],
     });
 
     if (!user) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
 
-    if (user.course == 'N/A') {
+    if (user.course && user.course.course === 'N/A') {
       throw new NotFoundException(
         `User with email ${email} has no course information`,
       );

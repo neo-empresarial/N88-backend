@@ -1,6 +1,6 @@
 ﻿import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Classes } from "./classes/classes.entity";
-import { SavedSchedules } from "src/users/savedschedules/savedschedules.entity";
+import { SavedSchedules } from "../users/savedschedules/savedschedules.entity";
 
 @Entity()
 export class Subjects {

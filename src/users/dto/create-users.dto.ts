@@ -1,4 +1,5 @@
 ﻿import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Courses } from 'src/courses/courses.entity';
 
 export class CreateUsersDto {
   @IsNotEmpty()
@@ -13,8 +14,6 @@ export class CreateUsersDto {
   @IsString()
   password: string;
 
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
-  course: string;
+  
+  idcourse: number;
 }

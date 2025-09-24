@@ -16,6 +16,9 @@ import { RegisterDto } from './dto/register.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Courses } from 'src/courses/courses.entity';
+import { CoursesService } from 'src/courses/courses.service';
+
 dotenvConfig({ path: '.env' });
 
 @Injectable()
@@ -26,13 +29,24 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly googleAuthService: GoogleAuthService,
+    private readonly coursesService: CoursesService,
+    @InjectRepository(Courses)
+    private coursesRepository: Repository<Courses>,
   ) {}
 
-  async register(@Body() registerData: RegisterDto) {
+  async register(registerData: RegisterDto) {
     const user = await this.usersService.findOneByEmail(registerData.email);
 
     if (user) {
       throw new ConflictException('User already exists');
+    }
+
+    const selectedCourse =await this.coursesRepository.findOne({
+      where: {course: registerData.course},
+    });
+    
+    if (!selectedCourse) {
+      throw new BadRequestException('Curso não encontrado.');
     }
 
     const hashedPassword = await hash(registerData.password, 10);
@@ -41,7 +55,7 @@ export class AuthService {
       name: registerData.name,
       email: registerData.email,
       password: hashedPassword,
-      course: registerData.course,
+      idcourse: selectedCourse.idcourse,
     });
   }
 
@@ -64,7 +78,6 @@ export class AuthService {
       name: user.name,
       email: user.email,
       password: user.password,
-      course: user.course,
     };
   }
 
@@ -155,11 +168,15 @@ export class AuthService {
   async validateGoogleUser(googleUser: CreateUsersDto) {
     const user = await this.usersService.findOneByEmail(googleUser.email);
 
+    const defaultCourse = await this.coursesRepository.findOne({
+      where: {course: "N/A"},
+    });
+
     if (user) {
-      return { ...user, email: googleUser.email };
+      return { ...user, email: googleUser.email};
     }
 
-    const newUser = await this.usersService.create(googleUser);
-    return { ...newUser, email: googleUser.email };
+    const newUser = await this.usersService.create({...googleUser, idcourse: defaultCourse.idcourse,});
+    return { ...newUser, email: googleUser.email, };
   }
 }

@@ -13,12 +13,14 @@ import googleOauthConfig from 'src/config/google-oauth.config';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { CoursesModule } from 'src/courses/courses.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([RefreshToken]),
     UsersModule,
     PassportModule,
+    CoursesModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,

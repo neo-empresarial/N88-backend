@@ -1,5 +1,6 @@
-﻿import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+﻿import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { SavedSchedules } from './savedschedules/savedschedules.entity';
+import { Courses } from '../courses/courses.entity';
 
 @Entity()
 export class Users {
@@ -12,11 +13,12 @@ export class Users {
   @Column('varchar', { length: 55, unique: true })
   email: string;
 
-  @Column('varchar', { length: 255, nullable: true }) // Nullable for Google users
+  @Column('varchar', { length: 255, nullable: true })
   password: string;
 
-  @Column('varchar', { length: 45 })
-  course: string;
+  @ManyToOne(() => Courses)
+  @JoinColumn({ name: 'courseId' })
+  course: Courses;
 
   @OneToMany(
     (type) => SavedSchedules,
