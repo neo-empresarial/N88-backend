@@ -43,7 +43,7 @@ export class AuthService {
       throw new ConflictException('User already exists');
     }
 
-    const selectedCourse =await this.coursesRepository.findOne({
+    const selectedCourse = await this.coursesRepository.findOne({
       where: {course: registerData.course},
     });
     
