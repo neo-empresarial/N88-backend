@@ -55,7 +55,7 @@ export class UsersService {
       newUsers.password = CreateUsersDto.password;
     }
 
-    const course = await this.coursesService.findOne(CreateUsersDto.idcourse)
+    const course = await this.coursesService.findOne(CreateUsersDto.idcourse);
 
     newUsers.course = course;
 
