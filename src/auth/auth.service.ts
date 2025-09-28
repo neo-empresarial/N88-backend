@@ -17,6 +17,8 @@ import { RefreshToken } from './entities/refresh-token.entity';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { CoursesService } from 'src/courses/courses.service';
+import { Courses } from 'src/courses/courses.entity';
 import { Response } from 'express';
 dotenvConfig({ path: '.env' });
 
@@ -28,14 +30,25 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly googleAuthService: GoogleAuthService,
+    private readonly coursesService: CoursesService,
+    @InjectRepository(Courses)
+    private coursesRepository: Repository<Courses>,
     private readonly configService: ConfigService,
   ) {}
 
-  async register(@Body() registerData: RegisterDto) {
+  async register(registerData: RegisterDto) {
     const user = await this.usersService.findOneByEmail(registerData.email);
 
     if (user) {
       throw new ConflictException('User already exists');
+    }
+
+    const selectedCourse = await this.coursesRepository.findOne({
+      where: {course: registerData.course},
+    });
+    
+    if (!selectedCourse) {
+      throw new BadRequestException('Curso não encontrado.');
     }
 
     const hashedPassword = await hash(registerData.password, 10);
@@ -45,7 +58,7 @@ export class AuthService {
       email: registerData.email,
       provider: 'local',
       password: hashedPassword,
-      course: registerData.course,
+      idcourse: selectedCourse.idcourse,
     });
   }
 
@@ -67,15 +80,17 @@ export class AuthService {
       userId: user.iduser,
       name: user.name,
       email: user.email,
+      password: user.password,
       provider: user.provider,
       course: user.course,
     };
   }
 
   async loginGoogle(email: string, res: Response) {
-    const user = await this.usersService.findOneByEmail(email);
 
-    const { SignJWT } = await import('jose');
+    const{SignJWT} = await import('jose');
+
+    const user = await this.usersService.findOneByEmail(email);
 
     const tokens = await this.generateUserTokens(user.iduser);
 
@@ -223,11 +238,15 @@ export class AuthService {
   async validateGoogleUser(googleUser: CreateUsersDto) {
     const user = await this.usersService.findOneByEmail(googleUser.email);
 
+    const defaultCourse = await this.coursesRepository.findOne({
+      where: {course: "N/A"},
+    });
+
     if (user) {
-      return { ...user, email: googleUser.email };
+      return { ...user, email: googleUser.email};
     }
 
-    const newUser = await this.usersService.create(googleUser);
-    return { ...newUser, email: googleUser.email };
+    const newUser = await this.usersService.create({...googleUser, idcourse: defaultCourse.idcourse,});
+    return { ...newUser, email: googleUser.email, };
   }
 }

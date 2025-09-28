@@ -37,7 +37,10 @@ export class Notification {
   @ManyToOne(() => Users)
   recipient: Users;
 
-  @ManyToOne(() => Group, { nullable: true })
+  @ManyToOne(() => Group, { 
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
   group: Group;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
