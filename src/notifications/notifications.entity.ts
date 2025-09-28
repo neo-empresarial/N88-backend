@@ -39,6 +39,7 @@ export class Notification {
 
   @ManyToOne(() => Group, { 
     onDelete: 'CASCADE',
+    nullable: true,
   })
   group: Group;
 
