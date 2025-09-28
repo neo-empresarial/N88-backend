@@ -70,14 +70,12 @@ export class UsersService {
 
   async updateUser(id: number, updateUserDto: UpdateUsersDto): Promise<Users> {
     let user = await this.findById(id);
-
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-
     user = { ...user, ...updateUserDto };
-
-    return this.usersRepository.save(user);
+    const savedUser = await this.usersRepository.save(user);
+    return savedUser;
   }
 
   async findOrCreateGoogleUser(googlePayload: any) {
