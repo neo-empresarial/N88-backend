@@ -98,7 +98,7 @@ export class AuthService {
     }
     const encodedKey = new TextEncoder().encode(secretKey);
 
-    const session = new SignJWT(sessionPayload)
+    const session = await new SignJWT(sessionPayload)
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime(expiredAt)
@@ -127,6 +127,8 @@ export class AuthService {
       expires: expiredAt,
       path: '/',
     });
+
+    console.log('session:',session)
   }
 
   async refreshTokens(refreshToken: string) {
