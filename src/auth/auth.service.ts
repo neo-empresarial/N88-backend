@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  Body,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -44,9 +43,9 @@ export class AuthService {
     }
 
     const selectedCourse = await this.coursesRepository.findOne({
-      where: {course: registerData.course},
+      where: { course: registerData.course },
     });
-    
+
     if (!selectedCourse) {
       throw new BadRequestException('Curso não encontrado.');
     }
@@ -87,8 +86,7 @@ export class AuthService {
   }
 
   async loginGoogle(email: string, res: Response) {
-
-    const{SignJWT} = await import('jose');
+    const { SignJWT } = await import('jose');
 
     const user = await this.usersService.findOneByEmail(email);
 
@@ -142,8 +140,6 @@ export class AuthService {
       expires: expiredAt,
       path: '/',
     });
-
-    console.log('session:',session)
   }
 
   async refreshTokens(refreshToken: string) {
@@ -239,14 +235,17 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(googleUser.email);
 
     const defaultCourse = await this.coursesRepository.findOne({
-      where: {course: "N/A"},
+      where: { course: 'N/A' },
     });
 
     if (user) {
-      return { ...user, email: googleUser.email};
+      return { ...user, email: googleUser.email };
     }
 
-    const newUser = await this.usersService.create({...googleUser, idcourse: defaultCourse.idcourse,});
-    return { ...newUser, email: googleUser.email, };
+    const newUser = await this.usersService.create({
+      ...googleUser,
+      idcourse: defaultCourse.idcourse,
+    });
+    return { ...newUser, email: googleUser.email };
   }
 }
