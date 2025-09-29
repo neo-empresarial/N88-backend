@@ -128,7 +128,7 @@ export class AuthService {
       path: '/',
     });
 
-    console.log('session:',session)
+    console.log('session:', session);
   }
 
   async refreshTokens(refreshToken: string) {
