@@ -81,7 +81,7 @@ export class SharedSchedulesService {
       : groupMembers.members.filter((member) => member.iduser !== userId);
 
     if (targetUsers.length === 0) {
-      throw new BadRequestException('Sem usuários válidos para compartilhar');
+      throw new BadRequestException('No valid users to share with');
     }
 
     // Create shared schedule records
