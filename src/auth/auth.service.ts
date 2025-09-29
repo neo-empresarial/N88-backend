@@ -127,8 +127,6 @@ export class AuthService {
       expires: expiredAt,
       path: '/',
     });
-
-    console.log('session:', session);
   }
 
   async refreshTokens(refreshToken: string) {
@@ -150,7 +148,7 @@ export class AuthService {
       { userId },
       {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-        expiresIn: '30s',
+        expiresIn: '3m',
       },
     );
 
