@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-// import cookieParser from 'cookie-parser'; // para deploy na vercel
-import * as cookieParser from 'cookie-parser'; // local
+import cookieParser from 'cookie-parser'; // para deploy na vercel
+// import * as cookieParser from 'cookie-parser'; // local
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
