@@ -14,7 +14,6 @@ export class AuthController {
 
   @Post('register')
   async register(@Req() req, @Body() registerData: RegisterDto) {
-    // Exemplo de uso: logar o IP do cliente
     console.log('Register request from IP:', req.ip);
 
     return {

@@ -4,7 +4,6 @@ import { Repository, In } from 'typeorm';
 import { Subjects } from './subjects.entity';
 import { CreateSubjectsDto } from './dto/create-subjects.dto';
 import { UpdateSubjectsDto } from './dto/update-subjects.dto';
-// import { CreateSubjectsSchedulesProfessorsDto } from './dto/create-subjects-schedules-professors.dto';
 import { Schedules } from './schedules/schedules.entity';
 import { Professors } from './professors/professors.entity';
 import { Classes } from './classes/classes.entity';
@@ -38,7 +37,6 @@ export class SubjectsService {
   }
 
   async findByParameter(name: string): Promise<Subjects[]> {
-    // it dosent look to optmized
     const subjects = this.subjectsRepository.find();
     const filteredSubjects = (await subjects).filter((subject) =>
       subject.name.toLowerCase().includes(name.toLowerCase()),
@@ -131,7 +129,6 @@ export class SubjectsService {
     });
 
     if (subject_exists) {
-      // Add the new classes to the existing subject
       subject_exists.classes = subject_exists.classes.concat(classes_objects);
       return this.subjectsRepository.save(subject_exists);
     } else {
@@ -143,11 +140,6 @@ export class SubjectsService {
     }
   }
 
-  // async createAll(CreateSubjectsSchedulesProfessorsDto: CreateSubjectsSchedulesProfessorsDto) {
-
-  // }
-
-  // Delete all subjects
   async deleteAll() {
     return this.subjectsRepository.delete({});
   }
@@ -163,7 +155,6 @@ export class SubjectsService {
         relations: ['classes', 'classes.schedules', 'classes.professors'],
       });
 
-      // Log the query results for debugging
       console.log(
         'Found subjects:',
         subjects.map((s) => s.code),

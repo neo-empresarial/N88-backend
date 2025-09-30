@@ -100,8 +100,6 @@ export class UsersService {
     newUser.name = googlePayload.name;
     newUser.email = googlePayload.email;
     newUser.course = defaultCourse;
-    // newUser.googleAccessToken = googlePayload.access_token;
-    // newUser.authType = 'google';
 
     return this.usersRepository.save(newUser);
   }

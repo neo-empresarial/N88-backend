@@ -1,4 +1,3 @@
-// src/groups/groups.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GroupsService } from './groups.service';

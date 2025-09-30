@@ -73,11 +73,6 @@ export class SubjectsController {
   remove(@Param('id') id: string) {
     return this.subjectsService.remove(+id);
   }
-
-  // @Post('/all')
-  // async createAll(@Body(ValidationPipe) CreateSubjectsSchedulesProfessorsDto: CreateSubjectsSchedulesProfessorsDto){
-  //   return this.subjectsService.createAll(CreateSubjectsSchedulesProfessorsDto);
-  // }
 }
 
 @Controller('schedules')

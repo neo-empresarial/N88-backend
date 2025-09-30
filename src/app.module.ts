@@ -29,5 +29,4 @@ import { Courses } from './courses/courses.entity';
   providers: [AppService],
 })
 
-//teste
 export class AppModule {}

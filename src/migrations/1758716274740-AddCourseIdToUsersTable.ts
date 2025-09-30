@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner, TableColumn, TableForeignKey } from "typeorm";
 
 export class AddCourseIdToUsersTable1758715869000 implements MigrationInterface {
-    name = 'AddCourseIdToUsersTable1758715869000' // O número será diferente no seu arquivo
+    name = 'AddCourseIdToUsersTable1758715869000'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.addColumn("users", new TableColumn({
@@ -19,7 +19,7 @@ export class AddCourseIdToUsersTable1758715869000 implements MigrationInterface 
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropForeignKey("users", "FK_YOUR_FOREIGN_KEY_NAME"); // Troque pelo nome real da chave estrangeira
+        await queryRunner.dropForeignKey("users", "FK_YOUR_FOREIGN_KEY_NAME");
         await queryRunner.dropColumn("users", "courseId");
     }
 }

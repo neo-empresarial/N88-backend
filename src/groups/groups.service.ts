@@ -1,4 +1,3 @@
-// src/groups/groups.service.ts
 import {
   Injectable,
   NotFoundException,
@@ -34,17 +33,15 @@ export class GroupsService {
       throw new NotFoundException('User not found');
     }
 
-    // Create group with only the owner as member initially
     const group = this.groupRepository.create({
       name: createGroupDto.name,
       description: createGroupDto.description,
       createdBy: Number(ownerId),
-      members: [owner], // Only add the owner initially
+      members: [owner],
     });
 
     const savedGroup = await this.groupRepository.save(group);
 
-    // Send invitations to all selected users
     if (createGroupDto.members && createGroupDto.members.length > 0) {
 
 
@@ -63,7 +60,7 @@ export class GroupsService {
           return result;
         } catch (error) {
           console.error(`Failed to send invitation to user ${userId}:`, error);
-          return null; // Continue with other invitations even if one fails
+          return null;
         }
       });
 
