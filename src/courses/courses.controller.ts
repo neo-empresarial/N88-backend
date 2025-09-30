@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { Courses } from './courses.entity';
 import { CoursesService } from './courses.service';
 import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
@@ -15,17 +9,16 @@ export class CoursesController {
 
   @Get()
   async findAll(): Promise<Courses[]> {
-    return await this.coursesService.findAll();
+    return this.coursesService.findAll();
   }
 
   @Get('search')
   async findByName(@Query('name') name: string): Promise<Courses[]> {
-    return await this.coursesService.findByName(name);
+    return this.coursesService.findByName(name);
   }
-
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Courses> {
-    return await this.coursesService.findOne(id);
+    return this.coursesService.findOne(id);
   }
 }

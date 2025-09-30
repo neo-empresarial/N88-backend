@@ -1,4 +1,4 @@
-﻿import { IsEmail, IsNotEmpty, isNumber, IsOptional, IsString } from 'class-validator';
+﻿﻿import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateUsersDto {
   @IsNotEmpty()
