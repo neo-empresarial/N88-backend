@@ -20,7 +20,7 @@ export class SavedSchedules {
   @MaxLength(50, { message: 'O título deve ter no máximo 50 caracteres.' })
   title: string;
 
-  @Column('text')
+  @Column({ nullable: true, default: '' })
   description: string;
 
   @ManyToOne(() => Users, (user) => user.savedschedules, {

@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  Body,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -8,7 +7,6 @@ import {
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
-import { config as dotenvConfig } from 'dotenv';
 import { GoogleAuthService } from './google-auth.service';
 import { CreateUsersDto } from 'src/users/dto/create-users.dto';
 import { LoginDto } from './dto/login.dto';
@@ -16,10 +14,9 @@ import { RegisterDto } from './dto/register.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SignJWT } from 'jose';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
-dotenvConfig({ path: '.env' });
+import { CoursesService } from 'src/courses/courses.service';
 
 @Injectable()
 export class AuthService {
@@ -30,13 +27,20 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly googleAuthService: GoogleAuthService,
     private readonly configService: ConfigService,
+    private readonly coursesService: CoursesService, 
   ) {}
 
-  async register(@Body() registerData: RegisterDto) {
+  async register (registerData: RegisterDto) {
     const user = await this.usersService.findOneByEmail(registerData.email);
 
     if (user) {
       throw new ConflictException('User already exists');
+    }
+
+    const selectedCourse = await this.coursesService.findOneByCourseName(registerData.course );
+
+    if (!selectedCourse) {
+      throw new BadRequestException('Curso não encontrado.');
     }
 
     const hashedPassword = await hash(registerData.password, 10);
@@ -46,7 +50,7 @@ export class AuthService {
       email: registerData.email,
       provider: 'local',
       password: hashedPassword,
-      course: registerData.course,
+      idcourse: selectedCourse.idcourse,
     });
   }
 
@@ -75,6 +79,8 @@ export class AuthService {
 
   async loginGoogle(email: string, res: Response) {
     const user = await this.usersService.findOneByEmail(email);
+
+    const { SignJWT } = await import('jose');
 
     const tokens = await this.generateUserTokens(user.iduser);
 
@@ -147,7 +153,7 @@ export class AuthService {
       { userId },
       {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-        expiresIn: '30s',
+        expiresIn: '3m',
       },
     );
 
@@ -220,11 +226,18 @@ export class AuthService {
   async validateGoogleUser(googleUser: CreateUsersDto) {
     const user = await this.usersService.findOneByEmail(googleUser.email);
 
+    const defaultCourse = await this.coursesService.findOneByCourseName('N/A');
+
     if (user) {
       return { ...user, email: googleUser.email };
     }
 
-    const newUser = await this.usersService.create(googleUser);
+    const newUser = await this.usersService.create({
+        ...googleUser,
+        password: '',
+        idcourse: defaultCourse.idcourse, 
+    });
+
     return { ...newUser, email: googleUser.email };
   }
 }

@@ -1,4 +1,3 @@
-import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
@@ -13,12 +12,18 @@ import googleOauthConfig from 'src/config/google-oauth.config';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { Courses } from 'src/courses/courses.entity';
+import { CoursesModule } from 'src/courses/courses.module';
+import { Module, forwardRef } from '@nestjs/common';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([RefreshToken]),
     UsersModule,
+    forwardRef(() => UsersModule),
     PassportModule,
+    forwardRef(() => CoursesModule), 
+    CoursesModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,

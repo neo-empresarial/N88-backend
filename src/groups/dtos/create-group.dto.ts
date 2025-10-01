@@ -1,4 +1,3 @@
-// src/groups/dto/create-group.dto.ts
 import {
   IsString,
   IsOptional,

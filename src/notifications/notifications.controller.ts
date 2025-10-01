@@ -29,7 +29,6 @@ export class NotificationsController {
 
   @Get()
   async getUserNotifications(@Request() req) {
-    console.log('Fetching notifications for user ID:', req.userId);
     return this.notificationsService.getUserNotifications(req.userId);
   }
 

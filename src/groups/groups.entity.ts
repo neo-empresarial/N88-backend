@@ -21,7 +21,7 @@ export class Group {
   description: string;
 
   @Column('int')
-  createdBy: number; // Reference to the user who created the group
+  createdBy: number;
 
   @ManyToOne(() => Users)
   @JoinColumn({ name: 'createdBy', referencedColumnName: 'iduser' })
@@ -37,17 +37,16 @@ export class Group {
   })
   updatedAt: Date;
 
-  // Many-to-many relationship with Users
   @ManyToMany(() => Users)
   @JoinTable({
-    name: 'group_members', // Junction table name
+    name: 'group_members',
     joinColumn: {
       name: 'groupId',
-      referencedColumnName: 'id', // References Group.id
+      referencedColumnName: 'id', 
     },
     inverseJoinColumn: {
       name: 'userId',
-      referencedColumnName: 'iduser', // References Users.iduser (your actual PK)
+      referencedColumnName: 'iduser',
     },
   })
   members: Users[];

@@ -14,7 +14,6 @@ export class AuthController {
 
   @Post('register')
   async register(@Req() req, @Body() registerData: RegisterDto) {
-    // Exemplo de uso: logar o IP do cliente
     console.log('Register request from IP:', req.ip);
 
     return {
@@ -64,6 +63,8 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
+    await this.authService.validateGoogleUser(req.user);    
+    await this.authService.loginGoogle(req.user.email, res);
     res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}`);
   }
 }
