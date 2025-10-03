@@ -43,14 +43,16 @@ export class AuthController {
 
     res.cookie('access_token', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'development',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
+      path: '/',
     });
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'development',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
+      path: '/',
     });
 
     return { message: 'Tokens atualizados com sucesso' };

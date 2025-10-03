@@ -155,7 +155,7 @@ export class AuthService {
       { userId },
       {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-        expiresIn: '3m',
+        expiresIn: '10d',
       },
     );
 
