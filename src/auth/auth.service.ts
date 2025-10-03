@@ -27,17 +27,19 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly googleAuthService: GoogleAuthService,
     private readonly configService: ConfigService,
-    private readonly coursesService: CoursesService, 
+    private readonly coursesService: CoursesService,
   ) {}
 
-  async register (registerData: RegisterDto) {
+  async register(registerData: RegisterDto) {
     const user = await this.usersService.findOneByEmail(registerData.email);
 
     if (user) {
       throw new ConflictException('User already exists');
     }
 
-    const selectedCourse = await this.coursesService.findOneByCourseName(registerData.course );
+    const selectedCourse = await this.coursesService.findOneByCourseName(
+      registerData.course,
+    );
 
     if (!selectedCourse) {
       throw new BadRequestException('Curso não encontrado.');
@@ -111,24 +113,24 @@ export class AuthService {
 
     res.cookie('session', session, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       expires: expiredAt,
       path: '/',
     });
 
     res.cookie('access_token', sessionPayload.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       expires: expiredAt,
       path: '/',
     });
 
     res.cookie('refresh_token', sessionPayload.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       expires: expiredAt,
       path: '/',
     });
@@ -233,10 +235,10 @@ export class AuthService {
     }
 
     const newUser = await this.usersService.create({
-        ...googleUser,
-        password: '',
-        idcourse: defaultCourse.idcourse, 
-    });
+      ...googleUser,
+      password: '',
+      idcourse: defaultCourse.idcourse,
+    });
 
     return { ...newUser, email: googleUser.email };
   }

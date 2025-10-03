@@ -43,13 +43,13 @@ export class AuthController {
 
     res.cookie('access_token', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'development',
       sameSite: 'strict',
     });
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'development',
       sameSite: 'strict',
     });
 
@@ -63,7 +63,7 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
-    await this.authService.validateGoogleUser(req.user);    
+    await this.authService.validateGoogleUser(req.user);
     await this.authService.loginGoogle(req.user.email, res);
     res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}`);
   }
