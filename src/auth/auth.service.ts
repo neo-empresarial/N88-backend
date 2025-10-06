@@ -94,6 +94,7 @@ export class AuthService {
         name: user.name,
         email: user.email,
         provider: user.provider,
+        course: user.course,
       },
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
@@ -227,9 +228,11 @@ export class AuthService {
 
   async validateGoogleUser(googleUser: CreateUsersDto) {
     const user = await this.usersService.findOneByEmail(googleUser.email);
-
-    const defaultCourse = await this.coursesService.findOneByCourseName('N/A');
-
+    console.log(user);
+    let defaultCourse;
+    if (!user.email) {
+      defaultCourse = await this.coursesService.findOneByCourseName('N/A');
+    }
     if (user) {
       return { ...user, email: googleUser.email };
     }
