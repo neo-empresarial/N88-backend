@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Friends, FriendStatus } from './dto/friends.entity';
 import { Users } from '../user.entity';
+import { NotificationsService } from '../../notifications/notifications.service';
 
 @Injectable()
 export class FriendsService {
@@ -15,6 +16,7 @@ export class FriendsService {
     private readonly friendsRepository: Repository<Friends>,
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async sendFriendRequest(requesterId: number, addresseeId: number) {
@@ -38,7 +40,18 @@ export class FriendsService {
     friendship.addressee_id = addresseeId;
     friendship.status = FriendStatus.PENDING;
 
-    return this.friendsRepository.save(friendship);
+    const savedFriendship = await this.friendsRepository.save(friendship);
+
+    try {
+      await this.notificationsService.createFriendRequestNotification(
+        requesterId,
+        addresseeId,
+      );
+    } catch (error) {
+      console.error('Failed to create friend request notification:', error);
+    }
+
+    return savedFriendship;
   }
 
   async acceptFriendRequest(friendshipId: number, userId: number) {
@@ -52,6 +65,23 @@ export class FriendsService {
 
     friendship.status = FriendStatus.ACCEPTED;
     return this.friendsRepository.save(friendship);
+  }
+
+  async declineFriendRequest(friendshipId: number, userId: number) {
+    const friendship = await this.friendsRepository.findOne({
+      where: {
+        id: friendshipId,
+        addressee_id: userId,
+        status: FriendStatus.PENDING,
+      },
+    });
+    if (!friendship) {
+      throw new NotFoundException(
+        'Friend request not found or already processed',
+      );
+    }
+    await this.friendsRepository.remove(friendship);
+    return { message: 'Friend request declined successfully' };
   }
 
   async getFriends(userId: number) {

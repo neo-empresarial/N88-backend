@@ -1,6 +1,6 @@
-﻿import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+﻿import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { config as dotenvConfig } from 'dotenv';
-import { DataSource, DataSourceOptions } from "typeorm";
+import { DataSource, DataSourceOptions } from 'typeorm';
 
 dotenvConfig({ path: '.env' });
 
@@ -14,18 +14,18 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   synchronize: false, // Remove this line in production
   autoLoadEntities: true,
-  
   // ssl: true,
-  ssl: process.env.NODE_ENV === 'production'
-  ? { rejectUnauthorized: true } // Enforce strict SSL in production
-  : { rejectUnauthorized: false }, // Allow self-signed certs in dev
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: true } // Enforce strict SSL in production
+      : { rejectUnauthorized: false }, // Allow self-signed certs in dev
 
   // Migrations
-  // migrations: [
-  //   __dirname + '/../**/*.entity{.ts,.js}',
-  // ],
-  // migrationsTableName: 'typeorm_migrations',
-  // migrationsRun: true,
-}
+  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+  migrationsTableName: 'typeorm_migrations',
+  migrationsRun: false,
+};
 
-export const connectionSource = new DataSource(typeOrmConfig as DataSourceOptions);
+export const connectionSource = new DataSource(
+  typeOrmConfig as DataSourceOptions,
+);
