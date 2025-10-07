@@ -42,15 +42,6 @@ export class FriendsService {
 
     const savedFriendship = await this.friendsRepository.save(friendship);
 
-    try {
-      await this.notificationsService.createFriendRequestNotification(
-        requesterId,
-        addresseeId,
-      );
-    } catch (error) {
-      console.error('Failed to create friend request notification:', error);
-    }
-
     return savedFriendship;
   }
 
