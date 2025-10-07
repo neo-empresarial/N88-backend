@@ -20,6 +20,7 @@ export class Users {
 
   @Column('varchar', { length: 45 })
   course: string;
+  idcourse: number;
 
   @OneToMany(
     (type) => SavedSchedules,

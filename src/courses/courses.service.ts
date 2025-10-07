@@ -11,6 +11,12 @@ export class CoursesService {
         private readonly coursesRepository: Repository<Courses>,
     ) {}
 
+    async findOneByCourseName(courseName: string): Promise<Courses | null> {
+        return this.coursesRepository.findOne({
+            where: { course: courseName },
+        });
+    }
+
     async findAll(): Promise<ICourse[]> {
         const courses = await this.coursesRepository.find();
         return courses;

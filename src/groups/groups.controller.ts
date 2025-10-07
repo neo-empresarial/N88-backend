@@ -1,4 +1,3 @@
-// src/groups/groups.controller.ts
 import {
   Controller,
   Get,

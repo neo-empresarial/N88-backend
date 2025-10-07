@@ -4,9 +4,12 @@ import { CoursesController } from './courses.controller';
 import { CoursesService } from './courses.service';
 import { Courses } from './courses.entity';
 
+const TypeOrmForCourses = TypeOrmModule.forFeature([Courses]);
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Courses])],
+  imports: [TypeOrmForCourses],
   controllers: [CoursesController],
-  providers: [CoursesService]
+  providers: [CoursesService],
+  exports: [CoursesService, TypeOrmForCourses,]
 })
 export class CoursesModule {}

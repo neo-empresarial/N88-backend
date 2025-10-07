@@ -22,7 +22,6 @@ export class SchedulesService {
     newSchedule.classesnumber = createSchedulesDto.classesnumber;
     newSchedule.building = createSchedulesDto.building;
     newSchedule.room = createSchedulesDto.room;
-    // newSchedule.subject = createSchedulesDto.subject;
     return this.schedulesRepository.save(newSchedule);
   }
 

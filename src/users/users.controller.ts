@@ -26,6 +26,7 @@ export class UsersController {
   }
 
   @Get('/check_extra_info')
+  @UseGuards(JwtAuthGuard)
   async checkExtraInfo(@Param('email') email: string) {
     return this.usersService.checkExtraInfo(email);
   }
@@ -42,19 +43,18 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: any,
   ) {
-    console.log('Controller - Received ID:', id);
-    console.log('Controller - Update data:', updateUserDto);
     const result = await this.usersService.updateUser(id, updateUserDto);
-    console.log('Controller - Service result:', result);
     return result;
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(@Body(ValidationPipe) createUsersDto: CreateUsersDto) {
     return this.usersService.create(createUsersDto);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async deleteOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.deleteOne(id);
   }

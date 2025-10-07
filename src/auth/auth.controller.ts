@@ -14,7 +14,6 @@ export class AuthController {
 
   @Post('register')
   async register(@Req() req, @Body() registerData: RegisterDto) {
-    // Exemplo de uso: logar o IP do cliente
     console.log('Register request from IP:', req.ip);
 
     return {
@@ -44,13 +43,13 @@ export class AuthController {
 
     res.cookie('access_token', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'development',
       sameSite: 'strict',
     });
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'development',
       sameSite: 'strict',
     });
 

@@ -51,7 +51,7 @@ export class UsersService {
       newUsers.password = CreateUsersDto.password;
     }
 
-    newUsers.course = CreateUsersDto.course;
+    newUsers.idcourse = CreateUsersDto.idcourse;
 
     return this.usersRepository.save(newUsers);
   }
@@ -69,25 +69,12 @@ export class UsersService {
   }
 
   async updateUser(id: number, updateUserDto: UpdateUsersDto): Promise<Users> {
-    console.log('Service - Finding user with ID:', id);
     let user = await this.findById(id);
-    console.log('Service - Found user before update:', user.name, user.email);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-    console.log('Service - Update data received:', updateUserDto);
     user = { ...user, ...updateUserDto };
-    console.log('Service - User after merge:', user.name, user.email);
     const savedUser = await this.usersRepository.save(user);
-    console.log('Service - User after save:', savedUser.name, savedUser.email);
-    const verifyUser = await this.usersRepository.findOne({
-      where: { iduser: id },
-    });
-    console.log(
-      'Service - Verification query result:',
-      verifyUser?.name,
-      verifyUser?.email,
-    );
     return savedUser;
   }
 

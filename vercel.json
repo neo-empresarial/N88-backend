@@ -12,9 +12,10 @@
       "dest": "src/main.ts",
       "methods": ["GET", "POST", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS"],
       "headers": {
-        "Access-Control-Allow-Origin": "https://n88-frontend-86m1hm3yx-kaique-valentim-costa-souzas-projects.vercel.app",
+        "Access-Control-Allow-Origin": "https://n88-frontend-3g782vopz-neos-projects-cd039f7e.vercel.app",
         "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization"
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true"
       }
     }
   ]

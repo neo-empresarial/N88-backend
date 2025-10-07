@@ -35,7 +35,6 @@ export class SharedSchedulesService {
     userId: number,
     shareScheduleDto: ShareScheduleDto,
   ): Promise<SharedSchedules[]> {
-    // Verify the schedule belongs to the user
     const schedule = await this.savedSchedulesRepository.findOne({
       where: {
         idsavedschedule: shareScheduleDto.scheduleId,
@@ -49,7 +48,6 @@ export class SharedSchedulesService {
       );
     }
 
-    // Verify the group exists and user is a member
     const group = await this.groupsRepository
       .createQueryBuilder('group')
       .leftJoin('group.members', 'members')
@@ -61,7 +59,6 @@ export class SharedSchedulesService {
       throw new NotFoundException('Group not found or you are not a member');
     }
 
-    // Get all members of the group except the current user
     const groupMembers = await this.groupsRepository
       .createQueryBuilder('group')
       .leftJoinAndSelect('group.members', 'members')
@@ -84,11 +81,9 @@ export class SharedSchedulesService {
       throw new BadRequestException('No valid users to share with');
     }
 
-    // Create shared schedule records
     const sharedSchedules: SharedSchedules[] = [];
 
     for (const targetUser of targetUsers) {
-      // Check if already shared
       const existingShare = await this.sharedSchedulesRepository.findOne({
         where: {
           scheduleId: shareScheduleDto.scheduleId,
@@ -99,7 +94,7 @@ export class SharedSchedulesService {
       });
 
       if (existingShare) {
-        continue; // Skip if already shared
+        continue;
       }
 
       const sharedSchedule = this.sharedSchedulesRepository.create({
@@ -174,12 +169,10 @@ export class SharedSchedulesService {
       );
     }
 
-    // Mark as accepted
     sharedSchedule.isAccepted = true;
     sharedSchedule.acceptedAt = new Date();
     await this.sharedSchedulesRepository.save(sharedSchedule);
 
-    // Create a copy of the schedule for the user
     const newSchedule = this.savedSchedulesRepository.create({
       title: `${sharedSchedule.originalSchedule.title} (Shared)`,
       description: sharedSchedule.originalSchedule.description,
@@ -189,7 +182,6 @@ export class SharedSchedulesService {
     const savedNewSchedule =
       await this.savedSchedulesRepository.save(newSchedule);
 
-    // Copy the schedule items
     const scheduleItems = sharedSchedule.originalSchedule.items.map((item) => {
       const newItem = this.savedScheduleItemsRepository.create({
         subjectCode: item.subjectCode,

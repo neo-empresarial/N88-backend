@@ -48,7 +48,6 @@ export class NotificationsService {
       throw new NotFoundException('Group not found');
     }
 
-    // Check if there's already a pending invitation
     const existingInvitation = await this.notificationRepository.findOne({
       where: {
         sender: { iduser: senderId },
@@ -76,7 +75,6 @@ export class NotificationsService {
 
   async getUserNotifications(userId: number): Promise<Notification[]> {
 
-    // First, let's try a simple query to see if we get any notifications at all
     const allNotifications = await this.notificationRepository.find({
       where: { recipient: { iduser: userId } },
     });
@@ -116,7 +114,6 @@ export class NotificationsService {
       : NotificationStatus.REJECTED;
 
     if (accept) {
-      // Add user to group
       const group = await this.groupRepository.findOne({
         where: { id: notification.group.id },
         relations: ['members'],
