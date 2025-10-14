@@ -94,9 +94,8 @@ export class AuthService {
         name: user.name,
         email: user.email,
         provider: user.provider,
+        course: user.course,
       },
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
     };
 
     const secretKey = process.env.SESSION_SECRET_KEY!;
@@ -119,7 +118,7 @@ export class AuthService {
       path: '/',
     });
 
-    res.cookie('access_token', sessionPayload.accessToken, {
+    res.cookie('access_token', tokens.accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
@@ -127,7 +126,7 @@ export class AuthService {
       path: '/',
     });
 
-    res.cookie('refresh_token', sessionPayload.refreshToken, {
+    res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
