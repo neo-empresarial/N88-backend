@@ -1,4 +1,10 @@
-﻿import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+﻿import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 import { Request } from 'express';
@@ -35,11 +41,18 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   private extractToken(request: Request): string | undefined {
-
+    
     if (request.cookies && request.cookies.access_token) {
       Logger.log('Token extraído do cookie.');
       Logger.log(request.cookies.access_token);
       return request.cookies.access_token;
+    }
+
+    const authHeader = request.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      Logger.log('Token extraído do header Authorization.');
+      return token;
     }
 
     Logger.warn('Nenhum token encontrado no cabeçalho ou cookie.');
