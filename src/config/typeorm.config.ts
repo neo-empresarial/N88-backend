@@ -1,6 +1,6 @@
-﻿import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+﻿import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { config as dotenvConfig } from 'dotenv';
-import { DataSource, DataSourceOptions } from "typeorm";
+import { DataSource, DataSourceOptions } from 'typeorm';
 
 dotenvConfig({ path: '.env' });
 
@@ -15,10 +15,14 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   synchronize: false,
   autoLoadEntities: true,
 
-  ssl: process.env.NODE_ENV === 'production'
-  ? { rejectUnauthorized: true }
-  : { rejectUnauthorized: false },
+  // Neon requires SSL - enable it for all non-local connections
+  ssl:
+    process.env.DATABASE_HOST === 'localhost' ||
+    process.env.DATABASE_HOST === 'postgres'
+      ? false // Disable SSL only for local Docker postgres
+      : { rejectUnauthorized: false }, // Enable SSL for Neon (and other cloud DBs)
+};
 
-}
-
-export const connectionSource = new DataSource(typeOrmConfig as DataSourceOptions);
+export const connectionSource = new DataSource(
+  typeOrmConfig as DataSourceOptions,
+);
