@@ -23,8 +23,34 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Req() req, @Body() credentials: LoginDto) {
-    return { user: await this.authService.login(credentials) };
+  async login(
+    @Req() req,
+    @Body() credentials: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const userData = await this.authService.login(credentials);
+
+    const expiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const isProduction = process.env.NODE_ENV === 'production';
+    const sameSiteValue = isProduction ? 'none' : 'lax';
+
+    res.cookie('access_token', userData.accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: sameSiteValue as 'lax' | 'none',
+      expires: expiredAt,
+      path: '/',
+    });
+
+    res.cookie('refresh_token', userData.refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: sameSiteValue as 'lax' | 'none',
+      expires: expiredAt,
+      path: '/',
+    });
+
+    return { user: userData };
   }
 
   @Post('refresh')
@@ -63,7 +89,7 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleCallback(@Req() req, @Res() res) {
-    await this.authService.validateGoogleUser(req.user);    
+    await this.authService.validateGoogleUser(req.user);
     await this.authService.loginGoogle(req.user.email, res);
     res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}`);
   }
