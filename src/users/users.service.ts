@@ -114,4 +114,15 @@ export class UsersService {
 
     return user;
   }
+
+  async searchUsers(query: string, currentUserId: number): Promise<Users[]> {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.iduser != :currentUserId', { currentUserId })
+      .andWhere('(user.name ILIKE :query OR user.email ILIKE :query)', {
+        query: `%${query}%`,
+      })
+      .take(10)
+      .getMany();
+  }
 }
