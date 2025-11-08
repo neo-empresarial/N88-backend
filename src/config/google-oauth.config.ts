@@ -5,5 +5,5 @@ export default registerAs('googleOAuth', () => ({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: process.env.BACKEND_URL
     ? `${process.env.BACKEND_URL}auth/google/callback`
-    : 'http://localhost:8000/auth/google/callback',
+    : `http://localhost:8000/auth/google/callback`,
 }));
