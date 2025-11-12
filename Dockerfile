@@ -1,49 +1,34 @@
-# Multi-stage build for NestJS backend
+# ---------- Base ----------
 FROM node:20-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
-
-# Build stage
+# ---------- Builder: install ALL deps and build ----------
 FROM base AS builder
-WORKDIR /app
-
-# Copy package files and install all dependencies (including dev)
+# install deps (dev + prod) deterministically
 COPY package*.json ./
 RUN npm ci
-
-# Copy source code
+# copy source and build
 COPY . .
-
-# Build the application
 RUN npm run build
+# after building, prune dev deps so node_modules = prod-only
+RUN npm prune --omit=dev
 
-# Production stage
-FROM base AS runner
+# ---------- Runner: slim image with prod deps + dist ----------
+FROM node:20-alpine AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
 
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nestjs
+# non-root (optional)
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nestjs
 
-# Copy built application and dependencies
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=deps --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
+# copy pruned node_modules and built app
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist
 
 USER nestjs
-
 EXPOSE 8000
-
 ENV PORT=8000
-ENV HOSTNAME="0.0.0.0"
+ENV HOSTNAME=0.0.0.0
 
 CMD ["node", "dist/main.js"]
