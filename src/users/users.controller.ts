@@ -9,6 +9,8 @@ import {
   Post,
   UseGuards,
   ValidationPipe,
+  Query,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUsersDto } from './dto/create-users.dto';
@@ -55,5 +57,14 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   async deleteOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.deleteOne(id);
+  }
+ 
+  @Get('search')
+  async searchUsers(@Query('q') query: string, @Request() req) {
+    const currentUserId = req.user?.userId || req.user?.iduser || 1;
+    if (!query || query.trim().length < 2) {
+      return [];
+    }
+    return this.usersService.searchUsers(query.trim(), currentUserId);
   }
 }
