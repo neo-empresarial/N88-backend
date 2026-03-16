@@ -4,12 +4,15 @@ import { Users } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUsersDto } from './dto/create-users.dto';
 import { UpdateUsersDto } from './dto/update-users.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { NotificationType, NotificationStatus } from 'src/notifications/notifications.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async findAll(): Promise<Users[]> {
@@ -73,17 +76,36 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
+
+    const wasCourseEmpty = user.course === 'N/A' || !user.course;
+    const isNowFilled = updateUserDto.course && updateUserDto.course !== 'N/A';
+
+    if (wasCourseEmpty && isNowFilled) {
+      const notifications = await this.notificationsService.getUserNotifications(id);
+      const profileNotification = notifications.find(
+        (n) => n.type === NotificationType.PROFILE_COMPLETION && n.status === NotificationStatus.PENDING
+      );
+      
+      if (profileNotification) {
+        await this.notificationsService.respondToInvitation(profileNotification.id, id, true);
+      }
+    }
+
     user = { ...user, ...updateUserDto };
     const savedUser = await this.usersRepository.save(user);
     return savedUser;
   }
 
   async findOrCreateGoogleUser(googlePayload: any) {
-    const user = await this.usersRepository.findOne({
+    let user = await this.usersRepository.findOne({
       where: { email: googlePayload.email },
     });
 
     if (user) {
+      if (googlePayload.profilePicture && user.profilePicture !== googlePayload.profilePicture) {
+        user.profilePicture = googlePayload.profilePicture;
+        await this.usersRepository.save(user);
+      }
       return user;
     }
 
@@ -91,8 +113,9 @@ export class UsersService {
     newUser.name = googlePayload.name;
     newUser.email = googlePayload.email;
     newUser.course = 'N/A';
-    // newUser.googleAccessToken = googlePayload.access_token;
-    // newUser.authType = 'google';
+    newUser.provider = 'google';
+    newUser.password = '';
+    newUser.profilePicture = googlePayload.profilePicture || null;
 
     return this.usersRepository.save(newUser);
   }

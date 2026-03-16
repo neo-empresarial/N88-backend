@@ -4,6 +4,7 @@ import { Group } from '../groups/groups.entity';
 
 export enum NotificationType {
   GROUP_INVITATION = 'GROUP_INVITATION',
+  PROFILE_COMPLETION = 'PROFILE_COMPLETION',
 }
 
 export enum NotificationStatus {
@@ -31,7 +32,7 @@ export class Notification {
   })
   status: NotificationStatus;
 
-  @ManyToOne(() => Users)
+  @ManyToOne(() => Users, { nullable: true })
   sender: Users;
 
   @ManyToOne(() => Users)

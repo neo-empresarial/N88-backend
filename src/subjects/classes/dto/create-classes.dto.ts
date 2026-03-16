@@ -1,7 +1,12 @@
-﻿import { IsNotEmpty, IsNumber, IsString, ValidateNested } from "class-validator";
-import { CreateSchedulesDto } from "../../schedules/dto/create-schedules.dto";
-import { CreateProfessorsDto } from "../../professors/dto/create-professors.dto";
-import { Type } from "class-transformer";
+﻿import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { CreateSchedulesDto } from '../../schedules/dto/create-schedules.dto';
+import { CreateProfessorsDto } from '../../professors/dto/create-professors.dto';
+import { Type } from 'class-transformer';
 
 export class CreateClassesDto {
   @IsNotEmpty()

@@ -43,8 +43,6 @@ export class GroupsService {
     const savedGroup = await this.groupRepository.save(group);
 
     if (createGroupDto.members && createGroupDto.members.length > 0) {
-
-
       const invitationPromises = createGroupDto.members.map(async (userId) => {
         try {
           console.log(`Attempting to send invitation to user ${userId}...`);

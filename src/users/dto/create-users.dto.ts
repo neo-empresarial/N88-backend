@@ -1,4 +1,4 @@
-﻿﻿import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+﻿import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateUsersDto {
   @IsNotEmpty()
@@ -19,4 +19,8 @@ export class CreateUsersDto {
 
   @IsOptional()
   idcourse?: number;
+
+  @IsString()
+  @IsOptional()
+  profilePicture?: string;
 }

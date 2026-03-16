@@ -1,4 +1,4 @@
-﻿import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { SavedSchedules } from './savedschedules/savedschedules.entity';
 
 @Entity()
@@ -17,6 +17,9 @@ export class Users {
 
   @Column('varchar', { length: 255, nullable: true }) // Nullable for Google users
   password: string;
+
+  @Column('varchar', { length: 255, nullable: true })
+  profilePicture: string;
 
   @Column('varchar', { length: 45 })
   course: string;

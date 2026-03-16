@@ -10,8 +10,10 @@ import { Classes } from './classes/classes.entity';
 import { ClassesService } from './classes/classes.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Subjects, Schedules, Professors, Classes])],
+  imports: [
+    TypeOrmModule.forFeature([Subjects, Schedules, Professors, Classes]),
+  ],
   controllers: [SubjectsController, SchedulesController],
-  providers: [SubjectsService, SchedulesService, ClassesService]
+  providers: [SubjectsService, SchedulesService, ClassesService],
 })
 export class SubjectsModule {}

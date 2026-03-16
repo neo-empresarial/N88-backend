@@ -14,6 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { Courses } from 'src/courses/courses.entity';
 import { CoursesModule } from 'src/courses/courses.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 import { Module, forwardRef } from '@nestjs/common';
 
 @Module({
@@ -22,8 +23,9 @@ import { Module, forwardRef } from '@nestjs/common';
     UsersModule,
     forwardRef(() => UsersModule),
     PassportModule,
-    forwardRef(() => CoursesModule), 
+    forwardRef(() => CoursesModule),
     CoursesModule,
+    NotificationsModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,

@@ -71,46 +71,49 @@ export class SubjectsService {
   }
 
   async create(createSubjectDto: CreateSubjectsDto) {
-    const schedules = createSubjectDto.classes
-      .map((class_) => class_.schedules)
-      .flat();
-
-    const schedules_objects = await Promise.all(
-      schedules.map(async (schedule) => {
-        const newSchedule = new Schedules();
-        newSchedule.weekday = schedule.weekday;
-        newSchedule.starttime = schedule.starttime;
-        newSchedule.classesnumber = schedule.classesnumber;
-        newSchedule.building = schedule.building;
-        newSchedule.room = schedule.room;
-        return newSchedule;
-      }),
-    );
-
-    const professors = createSubjectDto.classes
-      .map((class_) => class_.professors)
-      .flat();
-
-    const professors_objects = await Promise.all(
-      professors.map(async (professor) => {
-        const professor_exists = await this.professorsRepository.findOne({
-          where: { name: professor.name },
-        });
-
-        if (professor_exists) {
-          return professor_exists;
-        }
-
-        const newProfessor = new Professors();
-        newProfessor.name = professor.name;
-        return newProfessor;
-      }),
-    );
-
     const classes = createSubjectDto.classes;
 
     const classes_objects = await Promise.all(
       classes.map(async (class_) => {
+        // 1. Map and create Schedules for this specific class only
+        const schedules_objects = await Promise.all(
+          (class_.schedules || []).map(async (schedule) => {
+            const newSchedule = new Schedules();
+            newSchedule.weekday = schedule.weekday;
+            newSchedule.starttime = schedule.starttime;
+            newSchedule.classesnumber = schedule.classesnumber;
+            newSchedule.building = schedule.building;
+            newSchedule.room = schedule.room;
+            return newSchedule;
+          }),
+        );
+
+        // 2. Map and deduplicate Professors for this specific class only
+        const uniqueProfessorsMap = new Map();
+        for (const prof of (class_.professors || [])) {
+          if (!uniqueProfessorsMap.has(prof.name)) {
+            uniqueProfessorsMap.set(prof.name, prof);
+          }
+        }
+        const uniqueProfessors = Array.from(uniqueProfessorsMap.values());
+
+        const professors_objects = await Promise.all(
+          uniqueProfessors.map(async (professor: any) => {
+            const professor_exists = await this.professorsRepository.findOne({
+              where: { name: professor.name },
+            });
+
+            if (professor_exists) {
+              return professor_exists;
+            }
+
+            const newProfessor = new Professors();
+            newProfessor.name = professor.name;
+            return this.professorsRepository.save(newProfessor);
+          }),
+        );
+
+        // 3. Create the class object
         const newClass = new Classes();
         newClass.classcode = class_.classcode;
         newClass.totalvacancies = class_.totalvacancies;
@@ -129,8 +132,15 @@ export class SubjectsService {
     });
 
     if (subject_exists) {
-      subject_exists.classes = subject_exists.classes.concat(classes_objects);
-      return this.subjectsRepository.save(subject_exists);
+      // Filter out classes that already exist to avoid duplication
+      const existingClassCodes = new Set(subject_exists.classes.map(c => c.classcode));
+      const newClassesObjects = classes_objects.filter(c => !existingClassCodes.has(c.classcode));
+
+      if (newClassesObjects.length > 0) {
+        subject_exists.classes = subject_exists.classes.concat(newClassesObjects);
+        return this.subjectsRepository.save(subject_exists);
+      }
+      return subject_exists;
     } else {
       const newSubject = new Subjects();
       newSubject.code = subject.code;

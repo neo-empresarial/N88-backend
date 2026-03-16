@@ -1,9 +1,9 @@
-﻿import { Controller, Get, Post, Query } from "@nestjs/common";
-import { FeedbackService } from "./feedback.service";
+﻿import { Controller, Get, Post, Query } from '@nestjs/common';
+import { FeedbackService } from './feedback.service';
 
 @Controller('feedback')
 export class FeedbackController {
-  constructor(private readonly feedbackService: FeedbackService) { }
+  constructor(private readonly feedbackService: FeedbackService) {}
 
   @Get('/')
   async findAll() {

@@ -58,7 +58,7 @@ export class UsersController {
   async deleteOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.deleteOne(id);
   }
- 
+
   @Get('search')
   async searchUsers(@Query('q') query: string, @Request() req) {
     const currentUserId = req.user?.userId || req.user?.iduser || 1;

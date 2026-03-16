@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Notification, NotificationStatus } from './notifications.entity';
+import { Notification, NotificationStatus, NotificationType } from './notifications.entity';
 import { Users } from '../users/user.entity';
 import { Group } from '../groups/groups.entity';
 
@@ -25,8 +25,6 @@ export class NotificationsService {
     recipientId: number,
     groupId: number,
   ): Promise<Notification> {
-
-
     const sender = await this.userRepository.findOne({
       where: { iduser: senderId },
     });
@@ -73,8 +71,29 @@ export class NotificationsService {
     return savedNotification;
   }
 
-  async getUserNotifications(userId: number): Promise<Notification[]> {
+  async createSystemNotification(
+    recipientId: number,
+    type: NotificationType,
+  ): Promise<Notification> {
+    const recipient = await this.userRepository.findOne({
+      where: { iduser: recipientId },
+    });
+    
+    if (!recipient) {
+      throw new NotFoundException('Recipient not found');
+    }
 
+    const notification = this.notificationRepository.create({
+      sender: null,
+      recipient,
+      type,
+      status: NotificationStatus.PENDING,
+    });
+
+    return this.notificationRepository.save(notification);
+  }
+
+  async getUserNotifications(userId: number): Promise<Notification[]> {
     const allNotifications = await this.notificationRepository.find({
       where: { recipient: { iduser: userId } },
     });
@@ -112,6 +131,10 @@ export class NotificationsService {
     notification.status = accept
       ? NotificationStatus.ACCEPTED
       : NotificationStatus.REJECTED;
+
+    if (notification.type === NotificationType.PROFILE_COMPLETION) {
+      return this.notificationRepository.save(notification);
+    }
 
     if (accept) {
       const group = await this.groupRepository.findOne({

@@ -35,16 +35,12 @@ export class SharedSchedulesController {
 
   @Get('received')
   async getSharedSchedulesForUser(@Request() req) {
-    return this.sharedSchedulesService.getSharedSchedulesForUser(
-      req.userId,
-    );
+    return this.sharedSchedulesService.getSharedSchedulesForUser(req.userId);
   }
 
   @Get('sent')
   async getSharedSchedulesByUser(@Request() req) {
-    return this.sharedSchedulesService.getSharedSchedulesByUser(
-      req.userId,
-    );
+    return this.sharedSchedulesService.getSharedSchedulesByUser(req.userId);
   }
 
   @Post('accept')
@@ -63,9 +59,6 @@ export class SharedSchedulesController {
     @Request() req,
     @Param('id', ParseIntPipe) id: number,
   ) {
-    return this.sharedSchedulesService.declineSharedSchedule(
-      req.userId,
-      id,
-    );
+    return this.sharedSchedulesService.declineSharedSchedule(req.userId, id);
   }
 }
