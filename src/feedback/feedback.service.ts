@@ -1,14 +1,14 @@
-﻿import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Feedback } from "./feedback.entity";
-import { Repository } from "typeorm";
+﻿import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Feedback } from './feedback.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class FeedbackService {
   constructor(
     @InjectRepository(Feedback)
     private readonly feedbackRepository: Repository<Feedback>,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Feedback[]> {
     const result = this.feedbackRepository.find();
@@ -18,7 +18,7 @@ export class FeedbackService {
 
   async create(message: string) {
     if (!message) {
-      throw new Error("Message is required");
+      throw new Error('Message is required');
     }
 
     const newFeedback = new Feedback();

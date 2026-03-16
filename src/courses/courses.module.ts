@@ -10,6 +10,6 @@ const TypeOrmForCourses = TypeOrmModule.forFeature([Courses]);
   imports: [TypeOrmForCourses],
   controllers: [CoursesController],
   providers: [CoursesService],
-  exports: [CoursesService, TypeOrmForCourses,]
+  exports: [CoursesService, TypeOrmForCourses],
 })
 export class CoursesModule {}

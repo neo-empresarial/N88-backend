@@ -17,6 +17,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { CoursesService } from 'src/courses/courses.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { NotificationType } from 'src/notifications/notifications.entity';
 
 @Injectable()
 export class AuthService {
@@ -27,17 +29,20 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly googleAuthService: GoogleAuthService,
     private readonly configService: ConfigService,
-    private readonly coursesService: CoursesService, 
+    private readonly coursesService: CoursesService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
-  async register (registerData: RegisterDto) {
+  async register(registerData: RegisterDto) {
     const user = await this.usersService.findOneByEmail(registerData.email);
 
     if (user) {
       throw new ConflictException('User already exists');
     }
 
-    const selectedCourse = await this.coursesService.findOneByCourseName(registerData.course );
+    const selectedCourse = await this.coursesService.findOneByCourseName(
+      registerData.course,
+    );
 
     if (!selectedCourse) {
       throw new BadRequestException('Curso não encontrado.');
@@ -92,6 +97,7 @@ export class AuthService {
         name: user.name,
         email: user.email,
         provider: user.provider,
+        profilePicture: user.profilePicture,
       },
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
@@ -224,20 +230,18 @@ export class AuthService {
   }
 
   async validateGoogleUser(googleUser: CreateUsersDto) {
-    const user = await this.usersService.findOneByEmail(googleUser.email);
+    const isNewUser = !(await this.usersService.findOneByEmail(googleUser.email));
+    
+    const user = await this.usersService.findOrCreateGoogleUser(googleUser);
 
-    const defaultCourse = await this.coursesService.findOneByCourseName('N/A');
-
-    if (user) {
-      return { ...user, email: googleUser.email };
+    if (isNewUser) {
+      // Send a system notification prompting them to complete their profile
+      await this.notificationsService.createSystemNotification(
+        user.iduser,
+        NotificationType.PROFILE_COMPLETION,
+      );
     }
 
-    const newUser = await this.usersService.create({
-        ...googleUser,
-        password: '',
-        idcourse: defaultCourse.idcourse, 
-    });
-
-    return { ...newUser, email: googleUser.email };
+    return user;
   }
 }

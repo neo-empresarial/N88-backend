@@ -42,7 +42,7 @@ export class Group {
     name: 'group_members',
     joinColumn: {
       name: 'groupId',
-      referencedColumnName: 'id', 
+      referencedColumnName: 'id',
     },
     inverseJoinColumn: {
       name: 'userId',

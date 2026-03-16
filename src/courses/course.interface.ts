@@ -1,4 +1,4 @@
 export interface ICourse {
-    idcourse: number;
-    course: string;
+  idcourse: number;
+  course: string;
 }

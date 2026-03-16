@@ -41,7 +41,6 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   private extractToken(request: Request): string | undefined {
-    
     if (request.cookies && request.cookies.access_token) {
       Logger.log('Token extraído do cookie.');
       Logger.log(request.cookies.access_token);

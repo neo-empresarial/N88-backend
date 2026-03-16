@@ -12,7 +12,8 @@ const dataSource = new DataSource({
   database: process.env.DATABASE_NAME || 'n88prd',
   entities: isProd ? ['dist/**/*.entity.js'] : ['src/**/*.entity.ts'],
   migrations: isProd ? ['dist/migrations/*.js'] : ['src/migrations/*.ts'],
-  ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  ssl:
+    process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
 export default dataSource;

@@ -17,12 +17,12 @@ import { CreateSubjectsDto } from './dto/create-subjects.dto';
 import { SchedulesService } from './schedules/schedules.service';
 import { CreateSchedulesDto } from './schedules/dto/create-schedules.dto';
 import { Schedules } from './schedules/schedules.entity';
-import { CreateSubjectsSchedulesProfessorsDto } from './dto/create-subjects-schedules-professors.dto';
+
 import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
+import { ApiKeyGuard } from 'src/auth/guards/api-key.guard';
 import { UpdateSubjectsDto } from './dto/update-subjects.dto';
 
 @Controller('subjects')
-@UseGuards(JwtAuthGuard)
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
@@ -57,11 +57,13 @@ export class SubjectsController {
   }
 
   @Post()
+  @UseGuards(ApiKeyGuard)
   async create(@Body() createSubjectDto: CreateSubjectsDto) {
     return this.subjectsService.create(createSubjectDto);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   update(
     @Param('id') id: string,
     @Body() updateSubjectsDto: UpdateSubjectsDto,
@@ -70,6 +72,7 @@ export class SubjectsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.subjectsService.remove(+id);
   }
@@ -92,6 +95,7 @@ export class SchedulesController {
   }
 
   @Post()
+  @UseGuards(ApiKeyGuard)
   async create(@Body(ValidationPipe) CreateSchedulesDto: CreateSchedulesDto) {
     return this.schedulesService.create(CreateSchedulesDto);
   }

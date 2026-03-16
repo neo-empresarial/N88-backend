@@ -1,6 +1,6 @@
-﻿import { Type } from "class-transformer";
-import { IsNotEmpty, IsString, ValidateNested } from "class-validator";
-import { CreateClassesDto } from "../classes/dto/create-classes.dto";
+﻿import { Type } from 'class-transformer';
+import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { CreateClassesDto } from '../classes/dto/create-classes.dto';
 
 export class CreateSubjectsDto {
   @IsNotEmpty()
