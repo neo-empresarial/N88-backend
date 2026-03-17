@@ -90,7 +90,7 @@ export class SubjectsService {
 
         // 2. Map and deduplicate Professors for this specific class only
         const uniqueProfessorsMap = new Map();
-        for (const prof of (class_.professors || [])) {
+        for (const prof of class_.professors || []) {
           if (!uniqueProfessorsMap.has(prof.name)) {
             uniqueProfessorsMap.set(prof.name, prof);
           }
@@ -133,11 +133,16 @@ export class SubjectsService {
 
     if (subject_exists) {
       // Filter out classes that already exist to avoid duplication
-      const existingClassCodes = new Set(subject_exists.classes.map(c => c.classcode));
-      const newClassesObjects = classes_objects.filter(c => !existingClassCodes.has(c.classcode));
+      const existingClassCodes = new Set(
+        subject_exists.classes.map((c) => c.classcode),
+      );
+      const newClassesObjects = classes_objects.filter(
+        (c) => !existingClassCodes.has(c.classcode),
+      );
 
       if (newClassesObjects.length > 0) {
-        subject_exists.classes = subject_exists.classes.concat(newClassesObjects);
+        subject_exists.classes =
+          subject_exists.classes.concat(newClassesObjects);
         return this.subjectsRepository.save(subject_exists);
       }
       return subject_exists;

@@ -16,6 +16,12 @@ export class SavedScheduleItems {
   @Column('boolean', { default: true })
   activated: boolean;
 
+  @Column('int', { default: 1 })
+  planNumber: number;
+
+  @Column('int', { default: 0 })
+  credits: number;
+
   @ManyToOne(() => SavedSchedules, (savedSchedule) => savedSchedule.items, {
     onDelete: 'CASCADE',
   })

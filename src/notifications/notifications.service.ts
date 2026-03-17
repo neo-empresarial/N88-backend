@@ -5,7 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Notification, NotificationStatus, NotificationType } from './notifications.entity';
+import {
+  Notification,
+  NotificationStatus,
+  NotificationType,
+} from './notifications.entity';
 import { Users } from '../users/user.entity';
 import { Group } from '../groups/groups.entity';
 
@@ -78,7 +82,7 @@ export class NotificationsService {
     const recipient = await this.userRepository.findOne({
       where: { iduser: recipientId },
     });
-    
+
     if (!recipient) {
       throw new NotFoundException('Recipient not found');
     }

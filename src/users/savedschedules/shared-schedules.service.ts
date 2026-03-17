@@ -187,6 +187,7 @@ export class SharedSchedulesService {
         subjectCode: item.subjectCode,
         classCode: item.classCode,
         activated: item.activated,
+        planNumber: item.planNumber || 1,
         savedSchedule: savedNewSchedule,
       });
       return newItem;
