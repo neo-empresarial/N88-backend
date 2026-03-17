@@ -5,7 +5,10 @@ import { Repository } from 'typeorm';
 import { CreateUsersDto } from './dto/create-users.dto';
 import { UpdateUsersDto } from './dto/update-users.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
-import { NotificationType, NotificationStatus } from 'src/notifications/notifications.entity';
+import {
+  NotificationType,
+  NotificationStatus,
+} from 'src/notifications/notifications.entity';
 
 @Injectable()
 export class UsersService {
@@ -81,13 +84,20 @@ export class UsersService {
     const isNowFilled = updateUserDto.course && updateUserDto.course !== 'N/A';
 
     if (wasCourseEmpty && isNowFilled) {
-      const notifications = await this.notificationsService.getUserNotifications(id);
+      const notifications =
+        await this.notificationsService.getUserNotifications(id);
       const profileNotification = notifications.find(
-        (n) => n.type === NotificationType.PROFILE_COMPLETION && n.status === NotificationStatus.PENDING
+        (n) =>
+          n.type === NotificationType.PROFILE_COMPLETION &&
+          n.status === NotificationStatus.PENDING,
       );
-      
+
       if (profileNotification) {
-        await this.notificationsService.respondToInvitation(profileNotification.id, id, true);
+        await this.notificationsService.respondToInvitation(
+          profileNotification.id,
+          id,
+          true,
+        );
       }
     }
 
@@ -97,12 +107,15 @@ export class UsersService {
   }
 
   async findOrCreateGoogleUser(googlePayload: any) {
-    let user = await this.usersRepository.findOne({
+    const user = await this.usersRepository.findOne({
       where: { email: googlePayload.email },
     });
 
     if (user) {
-      if (googlePayload.profilePicture && user.profilePicture !== googlePayload.profilePicture) {
+      if (
+        googlePayload.profilePicture &&
+        user.profilePicture !== googlePayload.profilePicture
+      ) {
         user.profilePicture = googlePayload.profilePicture;
         await this.usersRepository.save(user);
       }

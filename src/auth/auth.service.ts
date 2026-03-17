@@ -230,8 +230,10 @@ export class AuthService {
   }
 
   async validateGoogleUser(googleUser: CreateUsersDto) {
-    const isNewUser = !(await this.usersService.findOneByEmail(googleUser.email));
-    
+    const isNewUser = !(await this.usersService.findOneByEmail(
+      googleUser.email,
+    ));
+
     const user = await this.usersService.findOrCreateGoogleUser(googleUser);
 
     if (isNewUser) {

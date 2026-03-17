@@ -1,4 +1,4 @@
-﻿import {
+import {
   Column,
   Entity,
   OneToMany,
@@ -22,6 +22,9 @@ export class SavedSchedules {
 
   @Column({ nullable: true, default: '' })
   description: string;
+
+  @Column({ default: 0 })
+  totalCredits: number;
 
   @ManyToOne(() => Users, (user) => user.savedschedules, {
     onDelete: 'CASCADE',

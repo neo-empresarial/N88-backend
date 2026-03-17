@@ -1,4 +1,15 @@
-import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateSavedScheduleItemDto {
   @IsNotEmpty()
@@ -10,7 +21,25 @@ export class CreateSavedScheduleItemDto {
   classCode: string;
 
   @IsNotEmpty()
+  @IsBoolean()
   activated: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  credits?: number;
+}
+
+export class CreateSavedSchedulePlanDto {
+  @IsInt()
+  @Min(1)
+  @Max(3)
+  planNumber: number;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateSavedScheduleItemDto)
+  items: CreateSavedScheduleItemDto[];
 }
 
 export class CreateSavedScheduleDto {
@@ -22,7 +51,18 @@ export class CreateSavedScheduleDto {
   @IsString()
   description?: string;
 
+  @IsOptional()
   @IsArray()
-  @IsNotEmpty()
-  items: CreateSavedScheduleItemDto[];
+  @ValidateNested({ each: true })
+  @Type(() => CreateSavedSchedulePlanDto)
+  plans?: CreateSavedSchedulePlanDto[];
+
+  @IsOptional()
+  @IsArray()
+  items?: CreateSavedScheduleItemDto[];
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  totalCredits?: number;
 }
