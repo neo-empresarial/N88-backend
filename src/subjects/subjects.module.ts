@@ -8,10 +8,12 @@ import { Schedules } from './schedules/schedules.entity';
 import { Professors } from './professors/professors.entity';
 import { Classes } from './classes/classes.entity';
 import { ClassesService } from './classes/classes.service';
+import { SemestersModule } from 'src/semesters/semesters.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Subjects, Schedules, Professors, Classes]),
+    SemestersModule,
   ],
   controllers: [SubjectsController, SchedulesController],
   providers: [SubjectsService, SchedulesService, ClassesService],

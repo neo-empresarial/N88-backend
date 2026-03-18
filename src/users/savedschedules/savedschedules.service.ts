@@ -93,7 +93,7 @@ export class SavedSchedulesService {
       }));
 
       const planCredits = planItems
-        .filter(item => item.activated)
+        .filter((item) => item.activated)
         .reduce((sum, item) => sum + (item.credits || 0), 0);
 
       plans.push({
