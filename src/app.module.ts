@@ -11,6 +11,7 @@ import { GroupsModule } from './groups/groups.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { RefreshToken } from './auth/entities/refresh-token.entity';
 import { CoursesModule } from './courses/courses.module';
+import { SemestersModule } from './semesters/semesters.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CoursesModule } from './courses/courses.module';
     GroupsModule,
     NotificationsModule,
     CoursesModule,
+    SemestersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

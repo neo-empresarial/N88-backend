@@ -7,6 +7,7 @@ import { UpdateSubjectsDto } from './dto/update-subjects.dto';
 import { Schedules } from './schedules/schedules.entity';
 import { Professors } from './professors/professors.entity';
 import { Classes } from './classes/classes.entity';
+import { SemestersService } from 'src/semesters/semesters.service';
 
 @Injectable()
 export class SubjectsService {
@@ -22,17 +23,29 @@ export class SubjectsService {
 
     @InjectRepository(Classes)
     private readonly classesRepository: Repository<Classes>,
+
+    private readonly semestersService: SemestersService,
   ) {}
 
   async findAll(): Promise<Subjects[]> {
     return this.subjectsRepository.find({
-      relations: ['classes', 'classes.schedules', 'classes.professors'],
+      relations: [
+        'classes',
+        'classes.schedules',
+        'classes.professors',
+        'semester',
+      ],
     });
   }
 
   async findAllWithRelations(): Promise<Subjects[]> {
     return this.subjectsRepository.find({
-      relations: ['classes', 'classes.schedules', 'classes.professors'],
+      relations: [
+        'classes',
+        'classes.schedules',
+        'classes.professors',
+        'semester',
+      ],
     });
   }
 
@@ -47,7 +60,12 @@ export class SubjectsService {
   async findOne(id: number): Promise<Subjects> {
     const subject = await this.subjectsRepository.findOne({
       where: { idsubject: id },
-      relations: ['classes', 'classes.schedules', 'classes.professors'],
+      relations: [
+        'classes',
+        'classes.schedules',
+        'classes.professors',
+        'semester',
+      ],
     });
 
     if (!subject) {
@@ -60,7 +78,12 @@ export class SubjectsService {
   async findOneByName(name: string): Promise<Subjects> {
     const result = this.subjectsRepository.findOne({
       where: { name: name },
-      relations: ['classes', 'classes.schedules', 'classes.professors'],
+      relations: [
+        'classes',
+        'classes.schedules',
+        'classes.professors',
+        'semester',
+      ],
     });
 
     if ((await result) === undefined) {
@@ -73,9 +96,12 @@ export class SubjectsService {
   async create(createSubjectDto: CreateSubjectsDto) {
     const classes = createSubjectDto.classes;
 
+    const semesterEntity = await this.semestersService.getOrCreate(
+      createSubjectDto.semester,
+    );
+
     const classes_objects = await Promise.all(
       classes.map(async (class_) => {
-        // 1. Map and create Schedules for this specific class only
         const schedules_objects = await Promise.all(
           (class_.schedules || []).map(async (schedule) => {
             const newSchedule = new Schedules();
@@ -88,7 +114,6 @@ export class SubjectsService {
           }),
         );
 
-        // 2. Map and deduplicate Professors for this specific class only
         const uniqueProfessorsMap = new Map();
         for (const prof of class_.professors || []) {
           if (!uniqueProfessorsMap.has(prof.name)) {
@@ -113,7 +138,6 @@ export class SubjectsService {
           }),
         );
 
-        // 3. Create the class object
         const newClass = new Classes();
         newClass.classcode = class_.classcode;
         newClass.totalvacancies = class_.totalvacancies;
@@ -127,12 +151,19 @@ export class SubjectsService {
     const subject = createSubjectDto;
 
     const subject_exists = await this.subjectsRepository.findOne({
-      where: { code: subject.code },
-      relations: ['classes', 'classes.schedules', 'classes.professors'],
+      where: {
+        code: subject.code,
+        semester: { id: semesterEntity.id },
+      },
+      relations: [
+        'classes',
+        'classes.schedules',
+        'classes.professors',
+        'semester',
+      ],
     });
 
     if (subject_exists) {
-      // Filter out classes that already exist to avoid duplication
       const existingClassCodes = new Set(
         subject_exists.classes.map((c) => c.classcode),
       );
@@ -143,14 +174,19 @@ export class SubjectsService {
       if (newClassesObjects.length > 0) {
         subject_exists.classes =
           subject_exists.classes.concat(newClassesObjects);
+        subject_exists.pedidos_sem_vaga = subject.pedidos_sem_vaga ?? 0;
         return this.subjectsRepository.save(subject_exists);
       }
+      subject_exists.pedidos_sem_vaga = subject.pedidos_sem_vaga ?? 0;
+      await this.subjectsRepository.save(subject_exists);
       return subject_exists;
     } else {
       const newSubject = new Subjects();
       newSubject.code = subject.code;
       newSubject.name = subject.name;
+      newSubject.semester = semesterEntity;
       newSubject.classes = classes_objects;
+      newSubject.pedidos_sem_vaga = subject.pedidos_sem_vaga ?? 0;
       return this.subjectsRepository.save(newSubject);
     }
   }
@@ -167,7 +203,12 @@ export class SubjectsService {
     try {
       const subjects = await this.subjectsRepository.find({
         where: { code: In(codes) },
-        relations: ['classes', 'classes.schedules', 'classes.professors'],
+        relations: [
+          'classes',
+          'classes.schedules',
+          'classes.professors',
+          'semester',
+        ],
       });
 
       console.log(
@@ -193,6 +234,34 @@ export class SubjectsService {
     }
     if (updateSubjectDto.name) {
       subject.name = updateSubjectDto.name;
+    }
+    if (updateSubjectDto.pedidos_sem_vaga !== undefined) {
+      subject.pedidos_sem_vaga = updateSubjectDto.pedidos_sem_vaga;
+    }
+
+    return this.subjectsRepository.save(subject);
+  }
+
+  async updateByCode(
+    code: string,
+    updateSubjectDto: UpdateSubjectsDto,
+  ): Promise<Subjects> {
+    const subject = await this.subjectsRepository.findOne({
+      where: { code },
+    });
+
+    if (!subject) {
+      throw new NotFoundException(`Subject with code ${code} not found`);
+    }
+
+    if (updateSubjectDto.code) {
+      subject.code = updateSubjectDto.code;
+    }
+    if (updateSubjectDto.name) {
+      subject.name = updateSubjectDto.name;
+    }
+    if (updateSubjectDto.pedidos_sem_vaga !== undefined) {
+      subject.pedidos_sem_vaga = updateSubjectDto.pedidos_sem_vaga;
     }
 
     return this.subjectsRepository.save(subject);

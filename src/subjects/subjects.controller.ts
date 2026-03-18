@@ -62,6 +62,15 @@ export class SubjectsController {
     return this.subjectsService.create(createSubjectDto);
   }
 
+  @Patch('by-code/:code')
+  @UseGuards(ApiKeyGuard)
+  updateByCode(
+    @Param('code') code: string,
+    @Body() updateSubjectsDto: UpdateSubjectsDto,
+  ) {
+    return this.subjectsService.updateByCode(code, updateSubjectsDto);
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   update(

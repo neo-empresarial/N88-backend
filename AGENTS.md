@@ -87,8 +87,8 @@ CLI entry: `src/typeorm-cli.ts`
 
 ```
 src/
-  app.module.ts              # Root module
-  main.ts                    # Bootstrap (port 8000, CORS, ValidationPipe, cookie-parser)
+  app.module.ts              # Root module (includes SemestersModule)
+  main.ts                    # Bootstrap (port 8000, 10MB limit, CORS, ValidationPipe)
   auth/                      # Auth module (JWT, Google OAuth, local strategy)
     dto/                     # LoginDto, RegisterDto, RefreshTokensDto
     entities/                # RefreshToken entity
@@ -96,17 +96,51 @@ src/
     strategies/              # local, jwt, jwt-refresh, google
   users/                     # Users module (CRUD)
     dto/                     # CreateUsersDto, UpdateUsersDto
-    savedschedules/          # Saved schedule sub-resource
+    savedschedules/          # Saved schedule sub-resource (with total_credits, credits per item)
     friends/                 # Friends sub-resource
   courses/                   # Courses module (referenced on registration)
   groups/                    # Groups module
-  subjects/                  # Subjects module
+  subjects/                  # Subjects module (with semester FK, pedidos_sem_vaga column)
+    dto/                     # CreateSubjectsDto (with semester, pedidos_sem_vaga)
+    classes/                 # Classes sub-entity
+    schedules/               # Schedules sub-entity
+    professors/              # Professors sub-entity
+  semesters/                 # Semesters module (NEW - manages semester catalog)
+    dto/                     # CreateSemestersDto
   notifications/             # Notifications module
   feedback/                  # Feedback module
-  config/                    # typeorm.config.ts, google-oauth.config.ts
-  migrations/                # TypeORM migration files
+  config/                    # typeorm.config.ts (with logging), google-oauth.config.ts
+  migrations/                # TypeORM migration files (includes semester and schema migrations)
   types/                     # Shared type declarations
 ```
+
+---
+
+## 🆕 New Features & Major Updates (v2.1.0)
+
+### 🗓️ Multi-Semester Support
+- **Semesters Entity**: New `/semesters` module manages semester catalog
+- **Subject-Semester Relationship**: Subjects now link to specific semesters via FK
+- **Composite Unique Constraint**: `(code, semester_id)` prevents duplicates per semester
+- **API Versioning**: Subjects API now requires `semester` field in requests
+
+### 📊 Order History Integration  
+- **Simplified Schema**: `pedidos_sem_vaga` integer column on subjects table
+- **No Separate Table**: Eliminated complex `order_history_no_vacancies` table
+- **Per-Subject Updates**: Individual PATCH `/subjects/by-code/{code}` for scalability
+- **Smart Merging**: Backend updates existing subjects (same ID) instead of creating duplicates
+
+### 🚀 Performance & Scalability Improvements
+- **10MB Request Limit**: Handles large scraped datasets without 413 errors
+- **Individual Updates**: Eliminates batch operation size limitations  
+- **Better Query Performance**: No JOINs needed for order history data
+- **Database Constraint Fixes**: Proper unique constraints match business logic
+
+### 🔧 Developer Experience Enhancements
+- **TypeORM Logging**: Enhanced debugging with query and error logging
+- **Route Ordering**: Fixed API route precedence for proper endpoint resolution
+- **Migration Data Safety**: All schema changes preserve existing data
+- **Backward Compatibility**: Legacy API calls continue to work
 
 ---
 
@@ -198,6 +232,60 @@ Google OAuth config uses `@nestjs/config` with `ConfigModule.forFeature()` — s
 - Refresh token: JWT, 7-day expiry, stored in DB (`RefreshToken` entity), sent as `refresh_token` httpOnly cookie
 - Google OAuth: redirects to frontend after login, sets session + token cookies
 - Protected routes use `@UseGuards(JwtAuthGuard)` (which wraps `passport-jwt`)
+
+---
+
+## 🔗 API Endpoints
+
+### Core Subjects API
+```bash
+# Create/update subject with semester
+POST /subjects
+Content-Type: application/json
+X-Api-Key: your-api-key
+
+{
+  "code": "MTM7174",
+  "name": "Cálculo I", 
+  "semester": "2026.1",
+  "pedidos_sem_vaga": 25,
+  "classes": [...]
+}
+```
+
+### Order History Updates
+```bash
+# Update order history for specific subject
+PATCH /subjects/by-code/MTM7174
+Content-Type: application/json
+X-Api-Key: your-api-key
+
+{
+  "pedidos_sem_vaga": 30
+}
+```
+
+### Semesters Management
+```bash
+# List all semesters
+GET /semesters
+
+# Get specific semester
+GET /semesters/1
+
+# Create semester (auto-created by subjects posting)
+POST /semesters
+{
+  "semester": "2026.1"
+}
+```
+
+### Smart Subject Merging
+When posting a subject that already exists (same `code` + `semester_id`):
+- ✅ **Preserves existing database ID** (no orphaned records)
+- ✅ **Merges classes intelligently** (adds new classes, keeps existing ones)
+- ✅ **Updates order history** (`pedidos_sem_vaga` reflects latest value)
+- ✅ **No data loss** (existing schedules/professors preserved)
 
 ---
 
