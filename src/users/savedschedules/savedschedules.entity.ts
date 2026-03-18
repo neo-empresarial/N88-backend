@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Users } from '../user.entity';
 import { SavedScheduleItems } from './savedscheduleitems.entity';
+import { Semesters } from 'src/semesters/semesters.entity';
 import { Exclude } from 'class-transformer';
 import { IsNotEmpty, MaxLength } from 'class-validator';
 
@@ -30,6 +31,9 @@ export class SavedSchedules {
     onDelete: 'CASCADE',
   })
   user: Users;
+
+  @ManyToOne(() => Semesters, { nullable: true, onDelete: 'SET NULL' })
+  semester: Semesters;
 
   @OneToMany(() => SavedScheduleItems, (items) => items.savedSchedule, {
     cascade: true,

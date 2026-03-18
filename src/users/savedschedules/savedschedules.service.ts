@@ -11,6 +11,7 @@ import {
   SavedScheduleResponseDto,
   SavedSchedulePlanResponseDto,
 } from './dto/saved-schedule-response.dto';
+import { SemestersService } from 'src/semesters/semesters.service';
 
 @Injectable()
 export class SavedSchedulesService {
@@ -19,6 +20,7 @@ export class SavedSchedulesService {
     private readonly savedSchedulesRepository: Repository<SavedSchedules>,
     @InjectRepository(SavedScheduleItems)
     private readonly savedScheduleItemsRepository: Repository<SavedScheduleItems>,
+    private readonly semestersService: SemestersService,
   ) {}
 
   async create(
@@ -30,6 +32,14 @@ export class SavedSchedulesService {
     savedSchedule.description = createSavedScheduleDto.description;
     savedSchedule.totalCredits = createSavedScheduleDto.totalCredits || 0;
     savedSchedule.user = { iduser: userId } as any;
+
+    // Handle semester association if provided
+    if (createSavedScheduleDto.semester) {
+      const semester = await this.semestersService.getOrCreate(
+        createSavedScheduleDto.semester,
+      );
+      savedSchedule.semester = semester;
+    }
 
     const plansToCreate = this.normalizePlans(createSavedScheduleDto);
 
@@ -113,7 +123,7 @@ export class SavedSchedulesService {
   async findAllByUser(userId: number): Promise<SavedScheduleResponseDto[]> {
     const schedules = await this.savedSchedulesRepository.find({
       where: { user: { iduser: userId } },
-      relations: ['items'],
+      relations: ['items', 'semester'],
     });
 
     return schedules.map((schedule) => {
@@ -123,6 +133,7 @@ export class SavedSchedulesService {
         title: schedule.title,
         description: schedule.description,
         totalCredits: schedule.totalCredits,
+        semester: schedule.semester?.semester,
         plans,
         items: legacyItems,
       };
@@ -132,7 +143,7 @@ export class SavedSchedulesService {
   async findOne(id: number, userId: number): Promise<SavedScheduleResponseDto> {
     const savedSchedule = await this.savedSchedulesRepository.findOne({
       where: { idsavedschedule: id, user: { iduser: userId } },
-      relations: ['items'],
+      relations: ['items', 'semester'],
     });
 
     if (!savedSchedule) {
@@ -146,6 +157,7 @@ export class SavedSchedulesService {
       title: savedSchedule.title,
       description: savedSchedule.description,
       totalCredits: savedSchedule.totalCredits,
+      semester: savedSchedule.semester?.semester,
       plans,
       items: legacyItems,
     };
@@ -190,6 +202,14 @@ export class SavedSchedulesService {
     scheduleToUpdate.description = updateSavedScheduleDto.description;
     scheduleToUpdate.totalCredits = updateSavedScheduleDto.totalCredits || 0;
     scheduleToUpdate.items = savedScheduleItems;
+
+    // Handle semester association if provided
+    if (updateSavedScheduleDto.semester) {
+      const semester = await this.semestersService.getOrCreate(
+        updateSavedScheduleDto.semester,
+      );
+      scheduleToUpdate.semester = semester;
+    }
 
     const result = await this.savedSchedulesRepository.save(scheduleToUpdate);
     return this.findOne(result.idsavedschedule, userId);

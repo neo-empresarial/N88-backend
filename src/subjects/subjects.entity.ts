@@ -42,5 +42,5 @@ export class Subjects {
   savedschedules: SavedSchedules[];
 
   @Column('int')
-  pedidos_sem_vaga: number;
+  orders_without_vacancy: number;
 }

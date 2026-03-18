@@ -18,4 +18,5 @@ export class SavedScheduleResponseDto {
   totalCredits: number;
   plans: SavedSchedulePlanResponseDto[];
   items?: SavedScheduleItemResponseDto[]; // Legacy support
+  semester?: string;
 }

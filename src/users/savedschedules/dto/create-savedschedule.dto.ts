@@ -8,6 +8,7 @@ import {
   Max,
   Min,
   ValidateNested,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -65,4 +66,11 @@ export class CreateSavedScheduleDto {
   @IsInt()
   @Min(0)
   totalCredits?: number;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{4}\.[123]$/, {
+    message: 'Semester must be in format YYYY.S (e.g. "2026.1")',
+  })
+  semester?: string;
 }
