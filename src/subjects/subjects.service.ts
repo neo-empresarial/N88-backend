@@ -174,10 +174,12 @@ export class SubjectsService {
       if (newClassesObjects.length > 0) {
         subject_exists.classes =
           subject_exists.classes.concat(newClassesObjects);
-        subject_exists.pedidos_sem_vaga = subject.pedidos_sem_vaga ?? 0;
+        subject_exists.orders_without_vacancy =
+          subject.orders_without_vacancy ?? 0;
         return this.subjectsRepository.save(subject_exists);
       }
-      subject_exists.pedidos_sem_vaga = subject.pedidos_sem_vaga ?? 0;
+      subject_exists.orders_without_vacancy =
+        subject.orders_without_vacancy ?? 0;
       await this.subjectsRepository.save(subject_exists);
       return subject_exists;
     } else {
@@ -186,7 +188,7 @@ export class SubjectsService {
       newSubject.name = subject.name;
       newSubject.semester = semesterEntity;
       newSubject.classes = classes_objects;
-      newSubject.pedidos_sem_vaga = subject.pedidos_sem_vaga ?? 0;
+      newSubject.orders_without_vacancy = subject.orders_without_vacancy ?? 0;
       return this.subjectsRepository.save(newSubject);
     }
   }
@@ -211,11 +213,6 @@ export class SubjectsService {
         ],
       });
 
-      console.log(
-        'Found subjects:',
-        subjects.map((s) => s.code),
-      );
-
       return subjects;
     } catch (error) {
       console.error('Error finding subjects by codes:', error);
@@ -235,8 +232,8 @@ export class SubjectsService {
     if (updateSubjectDto.name) {
       subject.name = updateSubjectDto.name;
     }
-    if (updateSubjectDto.pedidos_sem_vaga !== undefined) {
-      subject.pedidos_sem_vaga = updateSubjectDto.pedidos_sem_vaga;
+    if (updateSubjectDto.orders_without_vacancy !== undefined) {
+      subject.orders_without_vacancy = updateSubjectDto.orders_without_vacancy;
     }
 
     return this.subjectsRepository.save(subject);
@@ -260,8 +257,8 @@ export class SubjectsService {
     if (updateSubjectDto.name) {
       subject.name = updateSubjectDto.name;
     }
-    if (updateSubjectDto.pedidos_sem_vaga !== undefined) {
-      subject.pedidos_sem_vaga = updateSubjectDto.pedidos_sem_vaga;
+    if (updateSubjectDto.orders_without_vacancy !== undefined) {
+      subject.orders_without_vacancy = updateSubjectDto.orders_without_vacancy;
     }
 
     return this.subjectsRepository.save(subject);

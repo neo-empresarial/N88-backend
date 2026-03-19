@@ -21,10 +21,18 @@ import { Schedules } from './schedules/schedules.entity';
 import { JwtAuthGuard } from 'src/auth/guards/local-auth.guard';
 import { ApiKeyGuard } from 'src/auth/guards/api-key.guard';
 import { UpdateSubjectsDto } from './dto/update-subjects.dto';
+import { CompetitionScoreService } from './competition-score.service';
+import {
+  CompetitionScoreDto,
+  BatchCompetitionScoreDto,
+} from './dto/competition-score.dto';
 
 @Controller('subjects')
 export class SubjectsController {
-  constructor(private readonly subjectsService: SubjectsService) {}
+  constructor(
+    private readonly subjectsService: SubjectsService,
+    private readonly competitionScoreService: CompetitionScoreService,
+  ) {}
 
   @Get()
   async findAll(): Promise<Subjects[]> {
@@ -42,6 +50,22 @@ export class SubjectsController {
     return this.subjectsService.findByParameter(name);
   }
 
+  @Get('competition-scores')
+  async getBatchCompetitionScores(
+    @Query('codes') codes: string,
+  ): Promise<BatchCompetitionScoreDto> {
+    if (!codes) {
+      return {
+        scores: [],
+        requestedCodes: [],
+        foundCodes: [],
+        notFoundCodes: [],
+      };
+    }
+    const codeArray = codes.split(',').filter((code) => code.trim() !== '');
+    return this.competitionScoreService.calculateBatchScores(codeArray);
+  }
+
   @Get('by-codes')
   async findByCodes(@Query('codes') codes: string) {
     if (!codes) {
@@ -49,6 +73,13 @@ export class SubjectsController {
     }
     const subjectCodes = codes.split(',').filter((code) => code.trim() !== '');
     return this.subjectsService.findByCodes(subjectCodes);
+  }
+
+  @Get(':code/competition-score')
+  async getSingleCompetitionScore(
+    @Param('code') code: string,
+  ): Promise<CompetitionScoreDto> {
+    return this.competitionScoreService.calculateAverageScore(code);
   }
 
   @Get(':id')

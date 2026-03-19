@@ -10,7 +10,7 @@ export class UpdateSubjectsDto {
   name?: string;
 
   @IsOptional()
-  @IsInt({ message: 'Pedidos sem vaga deve ser um número inteiro' })
-  @Min(0, { message: 'Pedidos sem vaga não pode ser negativo' })
-  pedidos_sem_vaga?: number;
+  @IsInt({ message: 'Orders without vacancy deve ser um número inteiro' })
+  @Min(0, { message: 'Orders without vacancy não pode ser negativo' })
+  orders_without_vacancy?: number;
 }

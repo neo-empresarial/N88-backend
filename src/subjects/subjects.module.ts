@@ -9,6 +9,7 @@ import { Professors } from './professors/professors.entity';
 import { Classes } from './classes/classes.entity';
 import { ClassesService } from './classes/classes.service';
 import { SemestersModule } from 'src/semesters/semesters.module';
+import { CompetitionScoreService } from './competition-score.service';
 
 @Module({
   imports: [
@@ -16,6 +17,11 @@ import { SemestersModule } from 'src/semesters/semesters.module';
     SemestersModule,
   ],
   controllers: [SubjectsController, SchedulesController],
-  providers: [SubjectsService, SchedulesService, ClassesService],
+  providers: [
+    SubjectsService,
+    SchedulesService,
+    ClassesService,
+    CompetitionScoreService,
+  ],
 })
 export class SubjectsModule {}

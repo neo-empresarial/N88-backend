@@ -14,7 +14,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   synchronize: true,
   autoLoadEntities: true,
-  logging: ['error', 'query'],
+  logging: ['error'],
 
   // Neon requires SSL - enable it for all non-local connections
   ssl:
