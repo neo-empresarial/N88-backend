@@ -8,6 +8,7 @@ import { Schedules } from './schedules/schedules.entity';
 import { Professors } from './professors/professors.entity';
 import { Classes } from './classes/classes.entity';
 import { SemestersService } from 'src/semesters/semesters.service';
+import { CampusService } from 'src/campus/campus.service';
 
 @Injectable()
 export class SubjectsService {
@@ -25,6 +26,7 @@ export class SubjectsService {
     private readonly classesRepository: Repository<Classes>,
 
     private readonly semestersService: SemestersService,
+    private readonly campusService: CampusService,
   ) {}
 
   async findAll(): Promise<Subjects[]> {
@@ -34,6 +36,7 @@ export class SubjectsService {
         'classes.schedules',
         'classes.professors',
         'semester',
+        'campus',
       ],
     });
   }
@@ -45,6 +48,22 @@ export class SubjectsService {
         'classes.schedules',
         'classes.professors',
         'semester',
+        'campus',
+      ],
+    });
+  }
+
+  async findByCampus(campusId: number): Promise<Subjects[]> {
+    return this.subjectsRepository.find({
+      where: {
+        campus: { id: campusId }
+      },
+      relations: [
+        'classes',
+        'classes.schedules',
+        'classes.professors',
+        'semester',
+        'campus',
       ],
     });
   }
@@ -65,6 +84,7 @@ export class SubjectsService {
         'classes.schedules',
         'classes.professors',
         'semester',
+        'campus',
       ],
     });
 
@@ -83,6 +103,7 @@ export class SubjectsService {
         'classes.schedules',
         'classes.professors',
         'semester',
+        'campus',
       ],
     });
 
@@ -98,6 +119,10 @@ export class SubjectsService {
 
     const semesterEntity = await this.semestersService.getOrCreate(
       createSubjectDto.semester,
+    );
+
+    const campusEntity = await this.campusService.getOrCreate(
+      createSubjectDto.campus,
     );
 
     const classes_objects = await Promise.all(
@@ -154,12 +179,14 @@ export class SubjectsService {
       where: {
         code: subject.code,
         semester: { id: semesterEntity.id },
+        campus: { id: campusEntity.id },
       },
       relations: [
         'classes',
         'classes.schedules',
         'classes.professors',
         'semester',
+        'campus',
       ],
     });
 
@@ -187,6 +214,7 @@ export class SubjectsService {
       newSubject.code = subject.code;
       newSubject.name = subject.name;
       newSubject.semester = semesterEntity;
+      newSubject.campus = campusEntity;
       newSubject.classes = classes_objects;
       newSubject.orders_without_vacancy = subject.orders_without_vacancy ?? 0;
       return this.subjectsRepository.save(newSubject);

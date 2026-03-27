@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   OneToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -8,6 +9,7 @@ import {
 import { Users } from '../user.entity';
 import { SavedScheduleItems } from './savedscheduleitems.entity';
 import { Semesters } from 'src/semesters/semesters.entity';
+import { Campus } from 'src/campus/campus.entity';
 import { Exclude } from 'class-transformer';
 import { IsNotEmpty, MaxLength } from 'class-validator';
 
@@ -34,6 +36,13 @@ export class SavedSchedules {
 
   @ManyToOne(() => Semesters, { nullable: true, onDelete: 'SET NULL' })
   semester: Semesters;
+
+  @ManyToOne(() => Campus, (campus) => campus.savedSchedules, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'campus_id' })
+  campus: Campus;
 
   @OneToMany(() => SavedScheduleItems, (items) => items.savedSchedule, {
     cascade: true,

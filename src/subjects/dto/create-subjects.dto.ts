@@ -26,6 +26,10 @@ export class CreateSubjectsDto {
   })
   semester: string;
 
+  @IsNotEmpty({ message: 'Campus é obrigatório' })
+  @IsString({ message: 'Campus deve ser uma string' })
+  campus: string;
+
   @IsNotEmpty()
   @Type(() => CreateClassesDto)
   @ValidateNested()

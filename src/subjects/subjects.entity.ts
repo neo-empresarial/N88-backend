@@ -12,9 +12,12 @@ import {
 import { Classes } from './classes/classes.entity';
 import { SavedSchedules } from 'src/users/savedschedules/savedschedules.entity';
 import { Semesters } from 'src/semesters/semesters.entity';
+import { Campus } from 'src/campus/campus.entity';
 
 @Entity()
-@Index('UQ_subjects_code_semester', ['code', 'semester'], { unique: true })
+@Index('UQ_subjects_code_semester_campus', ['code', 'semester', 'campus'], {
+  unique: true,
+})
 export class Subjects {
   @PrimaryGeneratedColumn({})
   idsubject: number;
@@ -28,6 +31,13 @@ export class Subjects {
   @ManyToOne(() => Semesters, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'semester_id' })
   semester: Semesters;
+
+  @ManyToOne(() => Campus, (campus) => campus.subjects, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'campus_id' })
+  campus: Campus;
 
   @OneToMany((type) => Classes, (classes) => classes.subject, {
     cascade: true,

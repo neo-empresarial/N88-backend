@@ -17,14 +17,17 @@ export class CoursesService {
     });
   }
 
-  async findAll(): Promise<ICourse[]> {
-    const courses = await this.coursesRepository.find();
+  async findAll(): Promise<Courses[]> {
+    const courses = await this.coursesRepository.find({
+      relations: ['campus'],
+    });
     return courses;
   }
 
-  async findOne(id: number): Promise<ICourse> {
+  async findOne(id: number): Promise<Courses> {
     const course = await this.coursesRepository.findOne({
       where: { idcourse: id },
+      relations: ['campus'],
     });
 
     if (!course) {
@@ -34,11 +37,12 @@ export class CoursesService {
     return course;
   }
 
-  async findByName(name: string): Promise<ICourse[]> {
+  async findByName(name: string): Promise<Courses[]> {
     return this.coursesRepository.find({
       where: {
         course: Like(`%${name}%`),
       },
+      relations: ['campus'],
     });
   }
 }
