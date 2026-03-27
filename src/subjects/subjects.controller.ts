@@ -35,7 +35,10 @@ export class SubjectsController {
   ) {}
 
   @Get()
-  async findAll(): Promise<Subjects[]> {
+  async findAll(@Query('campus_id') campusId?: string): Promise<Subjects[]> {
+    if (campusId) {
+      return this.subjectsService.findByCampus(Number(campusId));
+    }
     return this.subjectsService.findAll();
   }
 

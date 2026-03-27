@@ -73,4 +73,10 @@ export class CreateSavedScheduleDto {
     message: 'Semester must be in format YYYY.S (e.g. "2026.1")',
   })
   semester?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  campus?: number;
 }

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SavedSchedules } from './savedschedules.entity';
 import { SavedScheduleItems } from './savedscheduleitems.entity';
+import { Campus } from 'src/campus/campus.entity';
 import {
   CreateSavedScheduleDto,
   CreateSavedSchedulePlanDto,
@@ -20,6 +21,8 @@ export class SavedSchedulesService {
     private readonly savedSchedulesRepository: Repository<SavedSchedules>,
     @InjectRepository(SavedScheduleItems)
     private readonly savedScheduleItemsRepository: Repository<SavedScheduleItems>,
+    @InjectRepository(Campus)
+    private readonly campusRepository: Repository<Campus>,
     private readonly semestersService: SemestersService,
   ) {}
 
@@ -39,6 +42,26 @@ export class SavedSchedulesService {
         createSavedScheduleDto.semester,
       );
       savedSchedule.semester = semester;
+    }
+
+    // Handle campus association - required field
+    if (createSavedScheduleDto.campus) {
+      const campus = await this.campusRepository.findOne({
+        where: { id: createSavedScheduleDto.campus },
+      });
+      if (!campus) {
+        throw new NotFoundException(`Campus with id ${createSavedScheduleDto.campus} not found`);
+      }
+      savedSchedule.campus = campus;
+    } else {
+      // Default to Florianópolis if no campus specified (for backward compatibility)
+      const defaultCampus = await this.campusRepository.findOne({
+        where: { name: 'Florianópolis' },
+      });
+      if (!defaultCampus) {
+        throw new NotFoundException('Default campus Florianópolis not found');
+      }
+      savedSchedule.campus = defaultCampus;
     }
 
     const plansToCreate = this.normalizePlans(createSavedScheduleDto);
@@ -123,7 +146,7 @@ export class SavedSchedulesService {
   async findAllByUser(userId: number): Promise<SavedScheduleResponseDto[]> {
     const schedules = await this.savedSchedulesRepository.find({
       where: { user: { iduser: userId } },
-      relations: ['items', 'semester'],
+      relations: ['items', 'semester', 'campus'],
     });
 
     return schedules.map((schedule) => {
@@ -134,6 +157,7 @@ export class SavedSchedulesService {
         description: schedule.description,
         totalCredits: schedule.totalCredits,
         semester: schedule.semester?.semester,
+        campus: schedule.campus?.id,
         plans,
         items: legacyItems,
       };
@@ -143,7 +167,7 @@ export class SavedSchedulesService {
   async findOne(id: number, userId: number): Promise<SavedScheduleResponseDto> {
     const savedSchedule = await this.savedSchedulesRepository.findOne({
       where: { idsavedschedule: id, user: { iduser: userId } },
-      relations: ['items', 'semester'],
+      relations: ['items', 'semester', 'campus'],
     });
 
     if (!savedSchedule) {
@@ -158,6 +182,7 @@ export class SavedSchedulesService {
       description: savedSchedule.description,
       totalCredits: savedSchedule.totalCredits,
       semester: savedSchedule.semester?.semester,
+      campus: savedSchedule.campus?.id,
       plans,
       items: legacyItems,
     };
@@ -209,6 +234,17 @@ export class SavedSchedulesService {
         updateSavedScheduleDto.semester,
       );
       scheduleToUpdate.semester = semester;
+    }
+
+    // Handle campus association if provided
+    if (updateSavedScheduleDto.campus) {
+      const campus = await this.campusRepository.findOne({
+        where: { id: updateSavedScheduleDto.campus },
+      });
+      if (!campus) {
+        throw new NotFoundException(`Campus with id ${updateSavedScheduleDto.campus} not found`);
+      }
+      scheduleToUpdate.campus = campus;
     }
 
     const result = await this.savedSchedulesRepository.save(scheduleToUpdate);
