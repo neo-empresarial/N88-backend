@@ -50,7 +50,9 @@ export class SavedSchedulesService {
         where: { id: createSavedScheduleDto.campus },
       });
       if (!campus) {
-        throw new NotFoundException(`Campus with id ${createSavedScheduleDto.campus} not found`);
+        throw new NotFoundException(
+          `Campus with id ${createSavedScheduleDto.campus} not found`,
+        );
       }
       savedSchedule.campus = campus;
     } else {
@@ -242,7 +244,9 @@ export class SavedSchedulesService {
         where: { id: updateSavedScheduleDto.campus },
       });
       if (!campus) {
-        throw new NotFoundException(`Campus with id ${updateSavedScheduleDto.campus} not found`);
+        throw new NotFoundException(
+          `Campus with id ${updateSavedScheduleDto.campus} not found`,
+        );
       }
       scheduleToUpdate.campus = campus;
     }

@@ -56,7 +56,7 @@ export class SubjectsService {
   async findByCampus(campusId: number): Promise<Subjects[]> {
     return this.subjectsRepository.find({
       where: {
-        campus: { id: campusId }
+        campus: { id: campusId },
       },
       relations: [
         'classes',

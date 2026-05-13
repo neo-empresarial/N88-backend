@@ -105,13 +105,13 @@ export class CompetitionScoreService {
 
   /**
    * Determine score category based on average
-   * Baixa: 0-15, Média: 15-30, Alta: 30+
+   * Baixa: 0-5, Média: 5-15, Alta: 15+
    */
   getScoreCategory(score: number): 'Baixa' | 'Média' | 'Alta' {
-    if (score < 15) {
+    if (score < 5) {
       return 'Baixa';
     }
-    if (score < 30) {
+    if (score < 15) {
       return 'Média';
     }
     return 'Alta';
